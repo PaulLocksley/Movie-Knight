@@ -17,15 +17,15 @@ public class MovieController : ControllerBase
         {
                 this.MovieCache = new ConcurrentDictionary<int, Movie>();
                 this.movieService = new MovieService();
+                
         }
 
         [HttpPost("movieList")]
-        public async Task<IList<Movie>> PostMovieList(int[] movieIds)
+        public IList<Movie> PostMovieList(int[] movieIds)
         {
                 var movieList = new List<Movie>();
                 var po = new ParallelOptions { MaxDegreeOfParallelism = 25 }; //todo env config
-
-                Parallel.For(0, movieIds.Length, po, async i =>
+                Parallel.For(0, movieIds.Length, po,  i =>
                 {
                         if (MovieCache.ContainsKey(movieIds[i]))
                         {
