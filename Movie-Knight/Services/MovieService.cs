@@ -7,10 +7,11 @@ using System.Text.RegularExpressions;
 public class MovieService
 {
      private HttpClient client;
-     private IDictionary<string, Movie> movieCache;
-    public MovieService()
+     private ConcurrentDictionary<string, Movie> movieCache;
+    public MovieService(HttpClient? client = null)
     {
-        this.client = new HttpClient();
+        Console.WriteLine("Starting new Movie Service!");
+        this.client = client ?? new HttpClient();
         movieCache = new ConcurrentDictionary<string, Movie>();
     }
     

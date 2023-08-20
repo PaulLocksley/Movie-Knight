@@ -6,9 +6,9 @@ public class UserService
 {
      private HttpClient client;
 
-    public UserService()
+    public UserService(HttpClient? client = null)
     {
-        this.client = new HttpClient();
+        this.client = client ??  new HttpClient();
     }
 
     public async  Task<IList<(int movieId, int rating)>> FetchUser(string username, int pageNumber=0)

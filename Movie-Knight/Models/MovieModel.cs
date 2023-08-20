@@ -1,14 +1,14 @@
 namespace Movie_Knight.Models;
 
-public struct Movie
+public class Movie
 {
-    public IList<(string key, string value)> attributes;
-    public string name;
-    public int id;
-    public int duration;
-    public double? averageRating;
-    public DateTime releaseDate;
-    public string description;
+    public readonly IList<(string key, string value)> attributes;
+    public readonly string name;
+    public readonly int id;
+    public readonly int duration;
+    public readonly double? averageRating;
+    public readonly DateTime releaseDate;
+    public readonly string description;
 
     public Movie(IList<(string key, string value)> attributes, string name, int id, int duration, double? averageRating, DateTime releaseDate, string description)
     {
