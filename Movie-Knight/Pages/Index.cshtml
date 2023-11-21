@@ -1,11 +1,21 @@
 ﻿@page
-@model IndexModel
+@model Movie_Knight.Pages.IndexModel
 @{
     ViewData["Title"] = "Home page";
 }
 
-<div class="text-center">
-    <p>
-        REEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
-    </p>
+<div class="container" id="entryFrom">
+    <h4>>Enter a comma seperated list of usernames to compare. (max 8)<br/>
+        IE: James-Holden, Naomi-Nagata, Tim, Alex-Kamal, Peaches, Gunny</h4>
+    <textarea name="userNames"></textarea>
+
+    <button hx-get="UserComparison"
+            hx-include="[name='userNames']"
+            hx-target="#userAnalysis"
+            hx-indicator="#spinner">
+        Load user comparison
+    </button>
+    <div id="userAnalysis"></div>
+    <img  id="spinner" class="htmx-indicator" src="/img/loading.svg"/>
+
 </div>

@@ -4,22 +4,22 @@ using System.Collections.Concurrent;
 
 public class UserService
 {
-     private HttpClient client;
+     private readonly HttpClient _httpClient;
 
-    public UserService(HttpClient? client = null)
+    public UserService(HttpClient client)
     {
-        this.client = client ??  new HttpClient();
+        _httpClient = client;
     }
 
-    public async  Task<IList<(int movieId, int rating)>> FetchUser(string username, int pageNumber=0)
+    public async Task<IList<(int movieId, int rating)>> FetchUser(string username, int pageNumber=0)
     {
-        var userUrl = ("https://letterboxd.com/" + username +"/films/");
+        var userUrl = ( username +"/films/");
         if (pageNumber != 0)
         {
             userUrl += "page/" + pageNumber;
-        } 
+        }
 
-        var response = await client.GetAsync(userUrl);
+        var response = await _httpClient.GetAsync(userUrl);
         if (!response.IsSuccessStatusCode)
         {
             throw new Exception("Letterboxd returned for user " + username+ " invalid code " + response.StatusCode + " : " + response.Content);

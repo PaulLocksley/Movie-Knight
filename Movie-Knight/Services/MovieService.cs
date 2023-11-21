@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using Movie_Knight.Controllers;
 
 namespace Movie_Knight.Services;
 using Movie_Knight.Models;
@@ -6,21 +7,17 @@ using System.Text.RegularExpressions;
 
 public class MovieService
 {
-     private HttpClient client;
-     private ConcurrentDictionary<string, Movie> movieCache;
-    public MovieService(HttpClient? client = null)
+    public MovieService(HttpClient client)
     {
         Console.WriteLine("Starting new Movie Service!");
-        this.client = client ?? new HttpClient();
-        movieCache = new ConcurrentDictionary<string, Movie>();
     }
     
     public async Task<Movie> FetchMovie(string url)
     {
-        var movieUrl = ("https://letterboxd.com/film/" + url);
-    
+        var movieUrl = ("film/" + url);
 
-        var response = await client.GetAsync(movieUrl);
+        var _client = GetHttpClient.GetNamedHttpClient();
+        var response = await _client.GetAsync(movieUrl);
         if (!response.IsSuccessStatusCode)
         {
             throw new Exception("Letterboxd returned invalid code for movie " +url+" : "+ response.StatusCode + " : " + response.Content);

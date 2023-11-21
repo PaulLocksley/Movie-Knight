@@ -6,6 +6,8 @@ using Movie_Knight.Models;
 using Movie_Knight.Services;
 //using System.Text.Json;
 using Newtonsoft.Json;
+using MovieCache = Movie_Knight.Services.MovieCache;
+
 namespace Movie_Knight.Controllers;
 
 [ApiController]
@@ -13,22 +15,19 @@ namespace Movie_Knight.Controllers;
 //[ResponseCache(Duration = 7200)]
 public class UserController
 {
-    private UserService userService;
-    private MovieService movieService;
-    private JsonSerializer jsonSerializer;
-    private HttpClient? sharedHttpCleint;
-    public UserController()
-    {
-        this.sharedHttpCleint = new HttpClient();
-        this.userService = new UserService(sharedHttpCleint);
-        this.movieService = new MovieService(sharedHttpCleint);
-        this.jsonSerializer = Newtonsoft.Json.JsonSerializer.Create(); //for some the default encoding doesn't work here.
-    }
+    
+    private JsonSerializer jsonSerializer = Newtonsoft.Json.JsonSerializer.Create(); //for some the default encoding doesn't work here.
+    private readonly IHttpClientFactory _httpClientFactory;
 
+    public UserController(IHttpClientFactory httpClientFactory)
+    {
+        _httpClientFactory = httpClientFactory;
+    }
     [HttpGet("username")]
     public async Task<string> GetByUserName(string username, bool getMovies=false)
     {
         //Console.WriteLine($"MC Count: {MovieCache22.Count}");
+        var userService = new UserService(_httpClientFactory.CreateClient("RequestClient"));
         var movieList = await userService.FetchUser(username);
         var s = Stopwatch.StartNew();
 

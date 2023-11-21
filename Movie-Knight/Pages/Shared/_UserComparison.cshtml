@@ -1,0 +1,22 @@
+
+@model Movie_Knight.Pages.UserComparison
+@{ ArgumentNullException.ThrowIfNull(Model); }
+
+@if (Model.SharedMovies is {} movies)
+{
+    @if (Model.ComparisonUsers is {} users)
+    {
+
+
+        @foreach (var movie in movies)
+        {
+            <tr>
+                <td>@movie.name</td>
+            @foreach (var user in users)
+            {
+                <td>@user.userList.First(x=> x.movieId == movie.id).rating</td> //todo: HOLY SHIT THIS IS BAD! HASHSET!
+            }
+            </tr>
+        }
+    }
+}

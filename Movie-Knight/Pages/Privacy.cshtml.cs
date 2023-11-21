@@ -1,7 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
+﻿using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace deletetemtoemteoimte.Pages;
+namespace Movie_Knight.Pages;
 
 public class PrivacyModel : PageModel
 {

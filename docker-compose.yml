@@ -1,0 +1,11 @@
+﻿services:
+  movie-knight:
+    image: movie-knight
+    build:
+      context: .
+      dockerfile: Movie-Knight/Dockerfile
+  redis:
+    image: redis
+    container_name: cache
+    ports:
+      - "6379:6379"
