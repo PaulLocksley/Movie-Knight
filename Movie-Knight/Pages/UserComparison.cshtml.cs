@@ -16,7 +16,6 @@ public class UserComparison : PageModel
     public List<(Movie movieData,int mean,int delta)> SharedMovies;
     public int totalAverageDelta;
     public int totalAverageRating;
-    public StringBuilder rowData = new StringBuilder(); //this is really dumb.
     
     public async Task<IActionResult> OnGet(string userNames)
     {
@@ -80,20 +79,6 @@ public class UserComparison : PageModel
         totalAverageDelta = SharedMovies.Select(x => x.delta).Sum() / SharedMovies.Count;
         totalAverageRating = SharedMovies.Select(x => x.mean).Sum() / SharedMovies.Count;
 
-        foreach (var movie in SharedMovies)
-        {
-            rowData.Append($$"""{ Name:"{{movie.movieData.name}}" ,""");
-            foreach (var user in ComparisonUsers)
-            {
-                rowData.Append($$""" "{{user.username}}":{{user.userList[movie.movieData.id]}} ,""");
-            }
-
-            rowData.Append($$""" "Average Rating":{{movie.mean}} ,""");
-            rowData.Append($$""" "Total Delta to Average":{{movie.delta}} },""");
-            rowData.Append("\n");
-        }
-
-        rowData.Remove(rowData.Length - 2, 2);
 
         
         return Partial("_UserComparison", this);

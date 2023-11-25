@@ -5,33 +5,10 @@
 @using Microsoft.Extensions.Primitives
 @model Movie_Knight.Pages.UserComparison
 @{ ArgumentNullException.ThrowIfNull(Model); }
-<script>
-var columnDefs = [
-  { field: "Name" },
-  @foreach (var user in Model.ComparisonUsers)
-  {
-      @Html.Raw($$"""{ field: "{{user.username}}"},""")
-  }
-  { field: "Average Rating" },
-  { field: "Total Delta to Average"}
-];
-
-// specify the data
-var rowData = [
-@Html.Raw(Model.rowData.ToString())
-];
-
-// let the grid know which columns and what data to use
-var gridOptions = {
-  columnDefs: columnDefs,
-  rowData: rowData
-};
-
-</script>
-<div id="myGrid" class="ag-theme-alpine"></div>
 
 
-@*@if (Model.SharedMovies is {} movies)
+
+@if (Model.SharedMovies is {} movies)
 {
     @if (Model.ComparisonUsers is {} users)
     {
@@ -48,14 +25,18 @@ var gridOptions = {
         @foreach (var movie in movies)
         {
             <tr>
-                <td>@movie.Item1.name</td>
-            @foreach (var user in users)
-            {
-                <td>@user.userList[movie.Item1.id]</td>
-            }
-            <td>@movie.Item2</td>
-            <td>@movie.Item3</td>
+                <td>
+                    @movie.movieData.name.Split("-").Select(x =>
+                        x[..1].ToUpper() + x[1..]).Aggregate("", (x,y) => (x +" "+y))
+                </td>
+
+                @foreach (var user in users)
+                {
+                    <td>@user.userList[movie.Item1.id]</td>
+                }
+                <td>@movie.Item2</td>
+                <td>@movie.Item3</td>
             </tr>
         }
     }
-}*@
+}

@@ -64,9 +64,10 @@ public static class MovieCache
             }
             _cache[id] =  movie.Result;
             returnMovie =  movie.Result;
+            UpdateFileCache();
+
         }
 
-        UpdateFileCache();
         return returnMovie;
     }
 
