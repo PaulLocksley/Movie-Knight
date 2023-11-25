@@ -16,7 +16,8 @@
     <button hx-get="UserComparison"
             hx-include="[name='userNames']"
             hx-target="#userAnalysis"
-            hx-indicator="#spinner">
+            hx-indicator="#spinner"
+            hx-replace-url="true">
         Load user comparison
     </button>
     <div id="userAnalysis">

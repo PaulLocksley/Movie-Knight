@@ -20,10 +20,7 @@ public class UserComparison : PageModel
     public StringBuilder lineGraphData = new StringBuilder();
     public async Task<IActionResult> OnGet(string userNames)
     {
-        if (!Request.IsHtmx())
-        {
-            return Page();
-        }
+
         
         var users = userNames.Split(",")
             .Select(x => x.Trim())
@@ -120,6 +117,11 @@ public class UserComparison : PageModel
         lineGraphData.Remove(lineGraphData.Length - 1, 1);
         */
         lineGraphData.Append("]");
+        
+        if (!Request.IsHtmx())
+        {
+            return Page();
+        }
         return Partial("_UserComparison", this);
     }
 }

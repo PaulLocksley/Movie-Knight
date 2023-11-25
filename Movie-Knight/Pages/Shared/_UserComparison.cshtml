@@ -89,7 +89,7 @@ function openTab(evt, viewName) {
       var ctx = document.getElementById('movieScoreGraph');
     
       new Chart(ctx, {
-        type: 'line',
+        type: 'bar',
         data: {
           @Html.Raw(Model.lineGraphData.ToString())
         },
@@ -104,7 +104,7 @@ function openTab(evt, viewName) {
              text: 'User Ratings'
            }
          }
-       },
+       }
       });
     </script>
 </div>
