@@ -3,6 +3,24 @@
 @{
     ViewData["Title"] = "Home page";
 }
+<script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.js"></script>
+
+<script>
+var columnDefs = [];
+var rowData = [];
+var gridOptions = {
+  columnDefs: columnDefs,
+  rowData: rowData
+};
+document.body.addEventListener('htmx:afterSettle', () => {
+          var gridDiv = document.querySelector('#myGrid'); 
+          new agGrid.Grid(gridDiv, gridOptions);
+
+});
+</script>
+
+
+
 
 <div class="container" id="entryFrom">
     <h4>>Enter a comma seperated list of usernames to compare. (max 8)<br/>
@@ -15,7 +33,10 @@
             hx-indicator="#spinner">
         Load user comparison
     </button>
-    <div id="userAnalysis"></div>
+    <div id="userAnalysis">
+        <div id="myGrid" class="ag-theme-alpine"></div>
+    </div>
+    
     <img  id="spinner" class="htmx-indicator" src="/img/loading.svg"/>
 
 </div>

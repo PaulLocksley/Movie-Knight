@@ -1,4 +1,6 @@
 using System.Collections.Concurrent;
+using System.Text;
+using System.Text.RegularExpressions;
 using Htmx;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -11,9 +13,10 @@ namespace Movie_Knight.Pages;
 public class UserComparison : PageModel
 {
     public List<User> ComparisonUsers;
-    public List<(Movie,int mean,int delta)> SharedMovies;
+    public List<(Movie movieData,int mean,int delta)> SharedMovies;
     public int totalAverageDelta;
     public int totalAverageRating;
+    public StringBuilder rowData = new StringBuilder(); //this is really dumb.
     
     public async Task<IActionResult> OnGet(string userNames)
     {
@@ -21,16 +24,21 @@ public class UserComparison : PageModel
         {
             return Page();
         }
-
+        
         var users = userNames.Split(",")
             .Select(x => x.Trim())
             .ToArray();
-
+        
         if (users.Length >= 8)
         {
             return BadRequest("Requested too many users");
         }
-
+        var invalidUserNameRegex = new Regex("[^a-zA-Z0-9_]");
+        if (users.Any(x => invalidUserNameRegex.IsMatch(x)))
+        {
+            return BadRequest("A user contains an invalid character, if this is an error let me know somehow.");
+        }
+        
         ComparisonUsers = new List<User>();
         var userService = new UserService(GetHttpClient.GetNamedHttpClient());
 
@@ -71,6 +79,22 @@ public class UserComparison : PageModel
         SharedMovies = SharedMovies.OrderBy(m => m.Item3).ThenByDescending(m => m.Item2).ToList();
         totalAverageDelta = SharedMovies.Select(x => x.delta).Sum() / SharedMovies.Count;
         totalAverageRating = SharedMovies.Select(x => x.mean).Sum() / SharedMovies.Count;
+
+        foreach (var movie in SharedMovies)
+        {
+            rowData.Append($$"""{ Name:"{{movie.movieData.name}}" ,""");
+            foreach (var user in ComparisonUsers)
+            {
+                rowData.Append($$""" "{{user.username}}":{{user.userList[movie.movieData.id]}} ,""");
+            }
+
+            rowData.Append($$""" "Average Rating":{{movie.mean}} ,""");
+            rowData.Append($$""" "Total Delta to Average":{{movie.delta}} },""");
+            rowData.Append("\n");
+        }
+
+        rowData.Remove(rowData.Length - 2, 2);
+
         
         return Partial("_UserComparison", this);
     }

@@ -1,8 +1,37 @@
 
+
+@using System.Net.Mime
+@using System.Text
+@using Microsoft.Extensions.Primitives
 @model Movie_Knight.Pages.UserComparison
 @{ ArgumentNullException.ThrowIfNull(Model); }
+<script>
+var columnDefs = [
+  { field: "Name" },
+  @foreach (var user in Model.ComparisonUsers)
+  {
+      @Html.Raw($$"""{ field: "{{user.username}}"},""")
+  }
+  { field: "Average Rating" },
+  { field: "Total Delta to Average"}
+];
 
-@if (Model.SharedMovies is {} movies)
+// specify the data
+var rowData = [
+@Html.Raw(Model.rowData.ToString())
+];
+
+// let the grid know which columns and what data to use
+var gridOptions = {
+  columnDefs: columnDefs,
+  rowData: rowData
+};
+
+</script>
+<div id="myGrid" class="ag-theme-alpine"></div>
+
+
+@*@if (Model.SharedMovies is {} movies)
 {
     @if (Model.ComparisonUsers is {} users)
     {
@@ -29,4 +58,4 @@
             </tr>
         }
     }
-}
+}*@
