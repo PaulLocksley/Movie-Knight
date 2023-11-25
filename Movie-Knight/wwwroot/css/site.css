@@ -20,3 +20,47 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+
+/*tab view stuff from  https://www.w3schools.com/howto/howto_js_tabs.asp */
+.tab {
+  overflow: hidden;
+  flex-flow: row;
+  border: 1px solid #ccc;
+  background-color: #4cc9F0;
+}
+.tablinks {
+  width: 33.33%;
+  margin: 0;
+  color: #f72585;
+  font-weight: bolder;
+}
+.tab button {
+  background-color: inherit;
+  float: left;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 14px 16px;
+  transition: 0.3s;
+}
+
+.tab button:hover {
+  background-color: #4361EE;
+}
+
+.tab button.active {
+  background-color: #7209B7;
+}
+
+.tabcontent {
+  display: none;
+/*  padding: 6px 12px;
+  border: 1px solid #ccc;
+  border-top: none;*/
+  animation: fadeEffect 1s; /* Fading effect takes 1 second */
+}
+@keyframes fadeEffect {
+  from {opacity: 0;}
+  to {opacity: 1;}
+}

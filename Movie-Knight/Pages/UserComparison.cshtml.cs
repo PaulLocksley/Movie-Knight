@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 using Htmx;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Primitives;
 using Movie_Knight.Controllers;
 using Movie_Knight.Models;
 using Movie_Knight.Services;
@@ -16,7 +17,7 @@ public class UserComparison : PageModel
     public List<(Movie movieData,int mean,int delta)> SharedMovies;
     public int totalAverageDelta;
     public int totalAverageRating;
-    
+    public StringBuilder lineGraphData = new StringBuilder();
     public async Task<IActionResult> OnGet(string userNames)
     {
         if (!Request.IsHtmx())
@@ -80,7 +81,45 @@ public class UserComparison : PageModel
         totalAverageRating = SharedMovies.Select(x => x.mean).Sum() / SharedMovies.Count;
 
 
-        
+        //Section: Graph Data
+        lineGraphData.Append($$"""
+            labels: [{{SharedMovies.Select(x => $""" "{x.movieData.name}" """).Aggregate((x,y) => 
+                x +"," + y)}}],
+            datasets: [
+            """);
+        foreach (var user in ComparisonUsers)
+        {
+            lineGraphData.Append($$"""
+                                   {
+                                   label: '{{user.username}}',
+                                   data: [{{
+                                       SharedMovies.Select(x => user.userList[x.movieData.id])
+                                           .Aggregate("",(x,y) => $"{x},{y}")[1..]
+                                       
+                                   }}]
+                                   },
+                                   """);
+        }
+        lineGraphData.Append($$"""
+                               {
+                               label: 'Group average',
+                               data: [{{
+                                   SharedMovies.Select(x => x.mean)
+                                       .Aggregate("",(x,y) => $"{x},{y}")[1..]
+                                   }}]
+                               },{
+                               label: 'All User Average',
+                               data: [{{
+                                   SharedMovies.Select(x => (x.movieData.averageRating))
+                                       .Aggregate("",(x,y) => $"{x},{y}")[1..]
+
+                                   }}]
+                               }
+                               """);
+        /*
+        lineGraphData.Remove(lineGraphData.Length - 1, 1);
+        */
+        lineGraphData.Append("]");
         return Partial("_UserComparison", this);
     }
 }

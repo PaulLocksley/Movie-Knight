@@ -6,37 +6,124 @@
 @model Movie_Knight.Pages.UserComparison
 @{ ArgumentNullException.ThrowIfNull(Model); }
 
+<script>
+function openTab(evt, viewName) {
+  // Declare all variables
+  var i, tabcontent, tablinks;
 
+  // Get all elements with class="tabcontent" and hide them
+  tabcontent = document.getElementsByClassName("tabcontent");
+  for (i = 0; i < tabcontent.length; i++) {
+    tabcontent[i].style.display = "none";
+  }
 
-@if (Model.SharedMovies is {} movies)
-{
-    @if (Model.ComparisonUsers is {} users)
+  // Get all elements with class="tablinks" and remove the class "active"
+  tablinks = document.getElementsByClassName("tablinks");
+  for (i = 0; i < tablinks.length; i++) {
+    tablinks[i].className = tablinks[i].className.replace(" active", "");
+  }
+
+  // Show the current tab, and add an "active" class to the button that opened the tab
+  document.getElementById(viewName).style.display = "block";
+  evt.currentTarget.className += " active";
+}
+</script>
+
+<div class="tab container">
+    <button class="tablinks" id="defaultOpen" onclick="openTab(event, 'tableView')">Table</button>
+    <button class="tablinks" onclick="openTab(event, 'graphView')">Graphs</button>
+    <button class="tablinks" onclick="openTab(event, 'recommendationsView')">Recommendations</button>
+</div>
+<div id="tableView" class="tabcontent">
+    @if (Model.SharedMovies is {} movies)
     {
-
-        <tr>
-            <th>Name</th>
-            @foreach (var user in users)
-            {
-                <th>@user.username</th>
-            }
-            <th>Average Rating</th>
-            <th>Total Delta to Average</th>
-        </tr>
-        @foreach (var movie in movies)
+        <table>
+        @if (Model.ComparisonUsers is {} users)
         {
-            <tr>
-                <td>
-                    @movie.movieData.name.Split("-").Select(x =>
-                        x[..1].ToUpper() + x[1..]).Aggregate("", (x,y) => (x +" "+y))
-                </td>
 
+            <tr>
+                <th>Name</th>
                 @foreach (var user in users)
                 {
-                    <td>@user.userList[movie.Item1.id]</td>
+                    <th>@user.username</th>
                 }
-                <td>@movie.Item2</td>
-                <td>@movie.Item3</td>
+                <th>Average Rating</th>
+                <th>Total Delta to Average</th>
             </tr>
+            @foreach (var movie in movies)
+            {
+                <tr>
+                    <td>
+                        <a href="https://letterboxd.com/film/film:@movie.movieData.id/">
+                            @movie.movieData.name.Split("-").Select(x =>
+                                     x[..1].ToUpper() + x[1..]).Aggregate("", (x, y) => (x + " " + y))
+                        </a>
+                    </td>
+
+                    @foreach (var user in users)
+                    {
+                        <td>@user.userList[movie.Item1.id]</td>
+                    }
+                    <td>@movie.Item2</td>
+                    <td>@movie.Item3</td>
+                </tr>
+            }
         }
+        </table>
     }
-}
+</div>
+
+<!-- Graph Section -->
+
+<div id="graphView" class="tabcontent">
+    <div>
+        <canvas id="movieScoreGraph"></canvas>
+    </div>
+    <div>
+        <canvas id="scatterPlot"></canvas>
+    </div>
+    <div>
+        <canvas id="genreRadar"></canvas>
+    </div>
+    <script>
+      var ctx = document.getElementById('movieScoreGraph');
+    
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          @Html.Raw(Model.lineGraphData.ToString())
+        },
+        options: {
+         responsive: true,
+         plugins: {
+           legend: {
+             position: 'top',
+           },
+           title: {
+             display: true,
+             text: 'User Ratings'
+           }
+         }
+       },
+      });
+    </script>
+</div>
+
+
+<!-- Recommendation Section -->
+<div id="recommendationsView" class="tabcontent">
+    <h3>Tokyo</h3>
+    <p>Tokyo is the capital of Japan.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+<script>document.getElementById("defaultOpen").click();
+</script>
