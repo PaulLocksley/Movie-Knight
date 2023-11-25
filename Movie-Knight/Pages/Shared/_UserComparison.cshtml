@@ -7,15 +7,25 @@
     @if (Model.ComparisonUsers is {} users)
     {
 
-
+        <tr>
+            <th>Name</th>
+            @foreach (var user in users)
+            {
+                <th>@user.username</th>
+            }
+            <th>Average Rating</th>
+            <th>Total Delta to Average</th>
+        </tr>
         @foreach (var movie in movies)
         {
             <tr>
-                <td>@movie.name</td>
+                <td>@movie.Item1.name</td>
             @foreach (var user in users)
             {
-                <td>@user.userList[movie.id]</td>
+                <td>@user.userList[movie.Item1.id]</td>
             }
+            <td>@movie.Item2</td>
+            <td>@movie.Item3</td>
             </tr>
         }
     }

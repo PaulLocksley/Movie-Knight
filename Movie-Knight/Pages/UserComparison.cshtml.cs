@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using Htmx;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -10,8 +11,9 @@ namespace Movie_Knight.Pages;
 public class UserComparison : PageModel
 {
     public List<User> ComparisonUsers;
-    public List<Movie> SharedMovies;
-
+    public List<(Movie,int mean,int delta)> SharedMovies;
+    public int totalAverageDelta;
+    public int totalAverageRating;
     
     public async Task<IActionResult> OnGet(string userNames)
     {
@@ -45,7 +47,7 @@ public class UserComparison : PageModel
                 sharedList.IntersectWith(userList.Select(x => x.Key));
             }
             
-
+            
             ComparisonUsers.Add(
                 new User(username,
                     userList,
@@ -53,10 +55,23 @@ public class UserComparison : PageModel
             Console.WriteLine($"UserList length {userList.Count} sharedCount = {sharedList.Count}");
         }
 
+        IDictionary<int, int> averageRatings = new ConcurrentDictionary<int, int>();
+        IDictionary<int, int> totalDelta = new ConcurrentDictionary<int, int>();
+        foreach (var movieId in sharedList)
+        {
+            averageRatings[movieId] = ComparisonUsers.Select(x => 
+                                            x.userList[movieId]).Sum() / ComparisonUsers.Count;
+            totalDelta[movieId] = ComparisonUsers.Select(x =>
+                (int)Math.Abs(x.userList[movieId] - averageRatings[movieId])).Sum();
+        }
+        
         SharedMovies = sharedList.AsParallel().WithDegreeOfParallelism(12)
-            .Select(MovieCache.GetMovie)
+            .Select(m => (MovieCache.GetMovie(m),averageRatings[m],totalDelta[m]))
             .ToList();
-
+        SharedMovies = SharedMovies.OrderBy(m => m.Item3).ThenByDescending(m => m.Item2).ToList();
+        totalAverageDelta = SharedMovies.Select(x => x.delta).Sum() / SharedMovies.Count;
+        totalAverageRating = SharedMovies.Select(x => x.mean).Sum() / SharedMovies.Count;
+        
         return Partial("_UserComparison", this);
     }
 }
