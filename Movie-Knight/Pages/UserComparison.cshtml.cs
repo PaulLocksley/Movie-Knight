@@ -44,10 +44,8 @@ public class UserComparison : PageModel
             {
                 sharedList.IntersectWith(userList.Select(x => x.Key));
             }
-            Console.WriteLine("Found all users.");
-            SharedMovies = sharedList.AsParallel().WithDegreeOfParallelism(12)
-                .Select(MovieCache.GetMovie)
-                .ToList();
+            
+
             ComparisonUsers.Add(
                 new User(username,
                     userList,
@@ -55,6 +53,9 @@ public class UserComparison : PageModel
             Console.WriteLine($"UserList length {userList.Count} sharedCount = {sharedList.Count}");
         }
 
+        SharedMovies = sharedList.AsParallel().WithDegreeOfParallelism(12)
+            .Select(MovieCache.GetMovie)
+            .ToList();
 
         return Partial("_UserComparison", this);
     }

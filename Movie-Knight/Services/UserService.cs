@@ -23,7 +23,6 @@ public class UserService
 
     private async Task<IDictionary<int, int>> _fetchUser(string username, int pageNumber=0)
     {
-        Console.WriteLine("REAL FETCH!");
         var userUrl = ( username +"/films/");
         if (pageNumber != 0)
         {
