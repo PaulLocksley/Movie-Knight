@@ -14,8 +14,8 @@ namespace Movie_Knight.Pages;
 public class UserComparison : PageModel
 {
     public List<User> ComparisonUsers;
-    public List<(Movie movieData,int mean,int delta)> SharedMovies;
-    public int totalAverageDelta;
+    public List<(Movie movieData,double mean,int delta)> SharedMovies;
+    public double totalAverageDelta;
     public int totalAverageRating;
     public StringBuilder lineGraphData = new StringBuilder();
     public async Task<IActionResult> OnGet(string userNames)
@@ -63,22 +63,22 @@ public class UserComparison : PageModel
             Console.WriteLine($"UserList length {userList.Count} sharedCount = {sharedList.Count}");
         }
 
-        IDictionary<int, int> averageRatings = new ConcurrentDictionary<int, int>();
+        IDictionary<int, double> averageRatings = new ConcurrentDictionary<int, double>();
         IDictionary<int, int> totalDelta = new ConcurrentDictionary<int, int>();
         foreach (var movieId in sharedList)
         {
             averageRatings[movieId] = ComparisonUsers.Select(x => 
-                                            x.userList[movieId]).Sum() / ComparisonUsers.Count;
-            totalDelta[movieId] = ComparisonUsers.Select(x =>
-                (int)Math.Abs(x.userList[movieId] - averageRatings[movieId])).Sum();
+                                            x.userList[movieId]).Sum() /(double) ComparisonUsers.Count;
+            totalDelta[movieId] = Convert.ToInt32(ComparisonUsers.Select(x =>
+                Math.Abs(x.userList[movieId] - averageRatings[movieId])).Sum());
         }
         
         SharedMovies = sharedList.AsParallel().WithDegreeOfParallelism(12)
             .Select(m => (MovieCache.GetMovie(m),averageRatings[m],totalDelta[m]))
             .ToList();
         SharedMovies = SharedMovies.OrderBy(m => m.Item3).ThenByDescending(m => m.Item2).ToList();
-        totalAverageDelta = SharedMovies.Select(x => x.delta).Sum() / SharedMovies.Count;
-        totalAverageRating = SharedMovies.Select(x => x.mean).Sum() / SharedMovies.Count;
+        totalAverageDelta = SharedMovies.Select(x => x.delta).Sum() / (double)SharedMovies.Count;
+        totalAverageRating = Convert.ToInt32(SharedMovies.Select(x => x.mean).Sum()) / SharedMovies.Count;
 
 
         //Section: Graph Data
