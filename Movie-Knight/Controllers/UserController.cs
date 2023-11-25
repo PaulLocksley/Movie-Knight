@@ -32,7 +32,7 @@ public class UserController
         var s = Stopwatch.StartNew();
 
         var MovieDict = new ConcurrentDictionary<int, Movie>();
-        if (getMovies)
+        /*if (getMovies)
         {
             var po = new ParallelOptions { MaxDegreeOfParallelism = 25 }; //todo env config
             int iLength = movieList.Count();
@@ -40,7 +40,7 @@ public class UserController
                 {
                     MovieDict[movieList[i].movieId] = MovieCache.GetMovie(movieList[i].movieId);
                 });
-        }
+        }*/
         Console.WriteLine(s.Elapsed);
         var outputStringWriter = new StringWriter();
         jsonSerializer.Serialize(outputStringWriter,new User(username,movieList,MovieDict));

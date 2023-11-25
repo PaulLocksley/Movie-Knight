@@ -31,20 +31,20 @@ public class UserComparison : PageModel
 
         ComparisonUsers = new List<User>();
         var userService = new UserService(GetHttpClient.GetNamedHttpClient());
-        var movieService = new MovieService(GetHttpClient.GetNamedHttpClient());
+
         var sharedList = new HashSet<int>();
         foreach (var username in users)
         {
             var userList = await userService.FetchUser(username);
             if (sharedList.Count == 0)
             {
-                sharedList = userList.Select(x => x.movieId).ToHashSet();
+                sharedList = userList.Select(x => x.Key).ToHashSet();
             }
             else
             {
-                sharedList.IntersectWith(userList.Select(x => x.movieId));
+                sharedList.IntersectWith(userList.Select(x => x.Key));
             }
-
+            Console.WriteLine("Found all users.");
             SharedMovies = sharedList.AsParallel().WithDegreeOfParallelism(12)
                 .Select(MovieCache.GetMovie)
                 .ToList();
@@ -52,7 +52,7 @@ public class UserComparison : PageModel
                 new User(username,
                     userList,
                     null));
-            Console.WriteLine($"UserList lenght {userList.Count} sharedCount = {sharedList.Count}");
+            Console.WriteLine($"UserList length {userList.Count} sharedCount = {sharedList.Count}");
         }
 
 

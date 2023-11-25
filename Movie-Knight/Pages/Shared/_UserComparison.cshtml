@@ -14,7 +14,7 @@
                 <td>@movie.name</td>
             @foreach (var user in users)
             {
-                <td>@user.userList.First(x=> x.movieId == movie.id).rating</td> //todo: HOLY SHIT THIS IS BAD! HASHSET!
+                <td>@user.userList[movie.id]</td>
             }
             </tr>
         }

@@ -1,17 +1,24 @@
+using System.Text.Json;
+    
 namespace Movie_Knight.Models;
 
+[Serializable]
 public class Movie
 {
-    public readonly IList<(string key, string value)> attributes;
-    public readonly string name;
-    public readonly int id;
-    public readonly int duration;
-    public readonly double? averageRating;
-    public readonly DateTime releaseDate;
-    public readonly string description;
+    public  IList<(string key, string value)> attributes;
+    public  string name;
+    public  int id;
+    public  int duration;
+    public  double? averageRating;
+    public  DateTime releaseDate;
+    public  string description;
 
     public Movie(IList<(string key, string value)> attributes, string name, int id, int duration, double? averageRating, DateTime releaseDate, string description)
     {
+        if (id == 0)
+        {
+            throw new InvalidDataException();
+        }
         this.attributes = attributes;
         this.name = name;
         this.id = id;
