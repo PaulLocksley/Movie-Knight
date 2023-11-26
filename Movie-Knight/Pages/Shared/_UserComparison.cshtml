@@ -85,13 +85,14 @@ function openTab(evt, viewName) {
     <div>
         <canvas id="genreRadar"></canvas>
     </div>
+    
     <script>
       var ctx = document.getElementById('movieScoreGraph');
     
       new Chart(ctx, {
         type: 'bar',
         data: {
-          @Html.Raw(Model.lineGraphData.ToString())
+          @Html.Raw(Model.barGraphData.ToString())
         },
         options: {
          responsive: true,
@@ -106,7 +107,25 @@ function openTab(evt, viewName) {
          }
        }
       });
+      
+      var stx = document.getElementById('scatterPlot');
+      new Chart(stx, {
+           type: 'scatter',
+           data: @Html.Raw(Model.scatterPlotData.ToString()),
+           options: {
+               plugins:{
+                    tooltip: {
+                        callbacks: {
+                            label: (context) => {
+                                return `${context.raw.name}: Rating: ${context.raw.y} Frequency: ${context.raw.x}`;
+                            }
+                        }
+                    }
+               } 
+           } 
+      });
     </script>
+    
 </div>
 
 

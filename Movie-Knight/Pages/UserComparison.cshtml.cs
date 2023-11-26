@@ -8,6 +8,7 @@ using Microsoft.Extensions.Primitives;
 using Movie_Knight.Controllers;
 using Movie_Knight.Models;
 using Movie_Knight.Services;
+using HostingEnvironmentExtensions = Microsoft.AspNetCore.Hosting.HostingEnvironmentExtensions;
 
 namespace Movie_Knight.Pages;
 
@@ -17,7 +18,9 @@ public class UserComparison : PageModel
     public List<(Movie movieData,double mean,int delta)> SharedMovies;
     public double totalAverageDelta;
     public int totalAverageRating;
-    public StringBuilder lineGraphData = new StringBuilder();
+    public StringBuilder barGraphData = new();
+    public StringBuilder scatterPlotData = new();
+    public StringBuilder radarPlotData = new();
     public async Task<IActionResult> OnGet(string userNames)
     {
 
@@ -79,14 +82,15 @@ public class UserComparison : PageModel
 
 
         //Section: Graph Data
-        lineGraphData.Append($$"""
+        #region
+        barGraphData.Append($$"""
             labels: [{{SharedMovies.Select(x => $""" "{x.movieData.name}" """).Aggregate((x,y) => 
                 x +"," + y)}}],
             datasets: [
             """);
         foreach (var user in ComparisonUsers)
         {
-            lineGraphData.Append($$"""
+            barGraphData.Append($$"""
                                    {
                                    label: '{{user.username}}',
                                    data: [{{
@@ -97,7 +101,7 @@ public class UserComparison : PageModel
                                    },
                                    """);
         }
-        lineGraphData.Append($$"""
+        barGraphData.Append($$"""
                                {
                                label: 'Group average',
                                data: [{{
@@ -113,11 +117,60 @@ public class UserComparison : PageModel
                                    }}]
                                }
                                """);
-        /*
-        lineGraphData.Remove(lineGraphData.Length - 1, 1);
-        */
-        lineGraphData.Append("]");
+
+        barGraphData.Append("]");
+
+        var personData = new Dictionary<(string role, string name), (int frequency, double score)>();
+        string[] rolesWeCareAbout = {"cast","studio","writer","director"};
+        foreach (var movie in SharedMovies)
+        {
+            foreach ((string role, string name)person in movie.movieData.attributes
+                         .Where(x => rolesWeCareAbout.Contains(x.key)))
+            {
+                if (personData.ContainsKey(person))
+                {
+                    personData[person] = (personData[person].frequency+1,
+                        personData[person].score + movie.mean);
+                }
+                else
+                {
+                    personData[person] = (1,
+                        movie.mean);
+                }
+            }
+        }
+        foreach (var person in personData.Keys)
+        {
+            personData[person] = (personData[person].frequency,
+                personData[person].score / personData[person].frequency);
+        }
+        //put above data into table
+        scatterPlotData.Append($$"""
+                                 {
+                                 labels: [{{rolesWeCareAbout.Select(x=>$"'{x}'").Aggregate((x,y)=>x+","+y)}}],
+                                 datasets:[
+                                 
+                                 """);
+        foreach (var role in rolesWeCareAbout)
+        {
+            scatterPlotData.Append($$"""
+                                     {
+                                     label: '{{role}}',
+                                     data: [ 
+                """);
+             scatterPlotData.Append(personData
+                            .Where(p => p.Key.role == role)
+                            .Select(x => $$"""
+                                           { x: {{x.Value.frequency}}, y: {{x.Value.score}},name:'{{x.Key.name}}' }
+                                           """).Aggregate((x,y) => (x + ","+y)));
+             scatterPlotData.Append("]},");
+             //todo: future paul you will forget https://stackoverflow.com/questions/44661671/chart-js-scatter-chart-displaying-label-specific-to-point-in-tooltip
+        }
+
+        scatterPlotData.Remove(scatterPlotData.Length - 1, 1);
+        scatterPlotData.Append("]}");
         
+        #endregion 
         if (!Request.IsHtmx())
         {
             return Page();
