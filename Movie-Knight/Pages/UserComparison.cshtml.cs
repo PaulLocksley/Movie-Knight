@@ -169,6 +169,33 @@ public class UserComparison : PageModel
 
         scatterPlotData.Remove(scatterPlotData.Length - 1, 1);
         scatterPlotData.Append("]}");
+        var dictscores = new Dictionary<string, (int count, double sum)>();
+        foreach (var m in SharedMovies.Where(m => m.movieData.averageRating.HasValue))
+        {
+            foreach (var genre in m.movieData.attributes.Where(x => x.key == "genre"))
+            {
+                if (dictscores.ContainsKey(genre.value))
+                {
+                    dictscores[genre.value] = (dictscores[genre.value].count + 1,
+                        dictscores[genre.value].sum + m.movieData.averageRating!.Value);
+                }
+                else
+                {
+                    dictscores[genre.value] = (1, m.movieData.averageRating!.Value);
+                }
+            }
+        }
+        radarPlotData.Append($$"""
+                               {
+                               labels: [{{dictscores.Select(x=>$"'{x.Key}'").Aggregate((x,y)=>x+","+y)}}],
+                               datasets:[{
+                               label: 'Shared genrescoress',
+                               data: [{{dictscores.Select(x => ""+x.Value.sum/x.Value.count)
+                                   .Aggregate((x,y) => x+","+y)}}
+                                   ]}]
+                                   }
+                               """);
+        
         
         #endregion 
         if (!Request.IsHtmx())
