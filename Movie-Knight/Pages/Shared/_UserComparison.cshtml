@@ -146,8 +146,26 @@ function openTab(evt, viewName) {
 
 <!-- Recommendation Section -->
 <div id="recommendationsView" class="tabcontent">
-    <h3>Tokyo</h3>
-    <p>Tokyo is the capital of Japan.</p>
+    <h3>Recommendations:</h3>
+    <p>Recommendations are based on the following criteria:</p>
+    <ul>
+        <li>No users have seen the movie</li>
+        <li>It is related to at least <b>two</b> movies that the group mean rating is > 8</li>
+    </ul>
+    @if (Model.movieRecs.Count == 0)
+    {
+        <h2>Congrats, I don't have any recommendations for you. </h2>
+    }
+    @foreach (var movie in Model.movieRecs)
+    {           
+        <div class="movieRec">
+            <a href="https://letterboxd.com/film/film:@movie.id/"><h4>@movie.name.Split("-").Select(x => 
+                    x[..1].ToUpper() + x[1..]).Aggregate("", (x, y) => (x + " " + y))</h4></a>
+            <p>Duration: @movie.duration mins</p>
+            <p>Genres: @movie.attributes.Where(x => x.key == "genre").Aggregate("",(x,y) => ""+y.value)
+            </p>
+        </div>
+    }
 </div>
 
 
