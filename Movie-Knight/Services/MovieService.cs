@@ -108,8 +108,13 @@ public class MovieService
             attributes.Add((key:"director",value:match.Groups[1].Value));
 
         }
-
-        return new Movie(attributes, name, id, duration, averageRating, releaseDate, description);
+        Regex relatedRX = new Regex("""
+                                    linked-film-poster.+data-film-id="(\d+)"
+                                    """);
+        var relateds = relatedRX.Matches(content);
+        var relatedFilms = (relateds.Select(x => Int32.Parse(x.Groups[1].Value)).ToArray());
+        
+        return new Movie(attributes, name, id, duration, averageRating, releaseDate, description,relatedFilms);
     }
 
 }
