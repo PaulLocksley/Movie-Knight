@@ -11,6 +11,7 @@ namespace Movie_Knight.Services;
 
 public static class MovieCache
 {
+    //todo: swap all usages of this to be done via service.
     private static readonly IDictionary<int, Movie> _cache;
     private static readonly MovieService _movieService;
     private static DateTime _updateTime;
