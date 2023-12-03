@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
 using Htmx;
@@ -21,10 +22,13 @@ public class UserComparison : PageModel
     public StringBuilder barGraphData = new();
     public StringBuilder scatterPlotData = new();
     public StringBuilder radarPlotData = new();
+    public List<Movie> movieRecs = new();
     public async Task<IActionResult> OnGet(string userNames)
     {
+        var stopWatch = new Stopwatch();
+        stopWatch.Start();
 
-        
+        #region User Comparison 
         var users = userNames.Split(",")
             .Select(x => x.Trim())
             .ToArray();
@@ -79,10 +83,11 @@ public class UserComparison : PageModel
         SharedMovies = SharedMovies.OrderBy(m => m.Item3).ThenByDescending(m => m.Item2).ToList();
         totalAverageDelta = SharedMovies.Select(x => x.delta).Sum() / (double)SharedMovies.Count;
         totalAverageRating = Convert.ToInt32(SharedMovies.Select(x => x.mean).Sum()) / SharedMovies.Count;
-
-
-        //Section: Graph Data
-        #region
+        #endregion
+        Console.WriteLine($"comparison took: {stopWatch.ElapsedMilliseconds}");
+        stopWatch.Reset();
+        stopWatch.Start();
+        #region graphing section
         barGraphData.Append($$"""
             labels: [{{SharedMovies.Select(x => $""" "{x.movieData.name}" """).Aggregate((x,y) => 
                 x +"," + y)}}],
@@ -197,7 +202,44 @@ public class UserComparison : PageModel
                                """);
         
         
-        #endregion 
+        #endregion
+        Console.WriteLine($"Graphing took: {stopWatch.ElapsedMilliseconds}");
+        stopWatch.Reset();
+        stopWatch.Start();
+        #region recomendations
+        var watchedMovies = ComparisonUsers.Select(x => x.userList.Keys)
+            .Aggregate(new HashSet<int>(), (x, y) =>
+            {
+                foreach (var i in y)
+                {
+                    x.Add(i);
+                }
+
+                return x;
+            });
+        var recomendationCounts = new Dictionary<int, int>();
+        var rc = SharedMovies.Where(x => x.mean > 8)
+            .Select(x => x.movieData.relatedFilms).Aggregate(new List<int>(), (o, t) =>
+            {
+                o.AddRange(t);
+                return o;
+            });
+        foreach (var movieRec in rc.Where(x => !watchedMovies.Contains(x)))
+        {
+            if (recomendationCounts.ContainsKey(movieRec)) {
+                recomendationCounts[movieRec]++;
+            } else {
+                recomendationCounts[movieRec] = 1;
+            }
+        }
+        
+        foreach (var movieRec in recomendationCounts.Where(x => x.Value > 1)
+                     .OrderByDescending(x => x.Value))
+        {
+            movieRecs.Add(MovieCache.GetMovie(movieRec.Key));
+        }
+        #endregion
+        Console.WriteLine($"Recs took: {stopWatch.ElapsedMilliseconds}");
         if (!Request.IsHtmx())
         {
             return Page();
