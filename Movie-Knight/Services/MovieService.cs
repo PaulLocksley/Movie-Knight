@@ -1,4 +1,6 @@
 using System.Collections.Concurrent;
+using System.Diagnostics;
+using System.Globalization;
 using Movie_Knight.Controllers;
 
 namespace Movie_Knight.Services;
@@ -30,7 +32,7 @@ public class MovieService
         int id;
         int duration;
         double? averageRating;
-        DateTime releaseDate;
+        DateTime? releaseDate;
         string description;
 
         //var filmData = { id: 251943, name: "Spider-Man: Into the Spider-Verse", gwiId: 301363, releaseYear: "2018", posterURL: "/film/spider-man-into-the-spider-verse/image-150/", path: "/film/spider-man-into-the-spider-verse/", runTime: 117 };
@@ -48,7 +50,15 @@ public class MovieService
         //release date section
         Regex releaseYearRx = new Regex("""releaseYear: "(\d+)""");
         var releaseYear = releaseYearRx.Match(content).Groups[1].Value;
-        releaseDate = new DateTime(int.Parse(releaseYear), 1, 1, 12, 0, 0);
+        if (int.TryParse(releaseYear, out var releaseYearInt) && releaseYearInt > 1880 && releaseYearInt < 2200)
+        {
+            releaseDate = new DateTime(releaseYearInt, 1, 1, 12, 0, 0);
+        }
+        else
+        {
+            Debug.WriteLine($"Failed to parse date for movie {movieUrl}");
+            releaseDate = null;
+        }
 
         //description
         var descriptionRx = new Regex(@"<div class=.review body-text -prose -hero prettify.>.|\n.+<p>(.+)</p>");

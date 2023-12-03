@@ -10,12 +10,12 @@ public class Movie
     public  int id;
     public  int duration;
     public  double? averageRating;
-    public  DateTime releaseDate;
+    public  DateTime? releaseDate;
     public  string description;
     public int[] relatedFilms;
 
     public Movie(IList<(string key, string value)> attributes, string name, int id, int duration, double? averageRating,
-        DateTime releaseDate, string description, int[] relatedFilms)
+        DateTime? releaseDate, string description, int[] relatedFilms)
     {
         if (id == 0)
         {

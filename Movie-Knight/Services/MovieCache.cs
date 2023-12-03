@@ -45,14 +45,7 @@ public static class MovieCache
     
     public static Movie GetMovie(int id)
     {
-        Movie returnMovie;
-        try
-        {
-            returnMovie = _cache[id];
-            //Console.Write("Found from Cache!");
-
-        }
-        catch (Exception e)
+        if(!_cache.TryGetValue(id,out var returnMovie))
         {
             //Console.WriteLine(e);
             var movie = _movieService.FetchMovie("film:" + id);
@@ -61,14 +54,12 @@ public static class MovieCache
             if (movie.IsFaulted)
             {
                 Console.WriteLine(movie.Exception);
-                throw;
+                throw new Exception($"Failed to get movie with id {id}");
             }
             _cache[id] =  movie.Result;
             returnMovie =  movie.Result;
             UpdateFileCache();
-
         }
-
         return returnMovie;
     }
 
@@ -81,13 +72,12 @@ public static class MovieCache
         {
             return;
         }
-        
         try
         {
             var outputStringWriter = new StringWriter();
             jt.Serialize(outputStringWriter, _cache);
             await File.WriteAllTextAsync(_filePath, outputStringWriter.ToString());
-            Console.WriteLine("Cache saved to file successfully.");
+            Console.WriteLine($"Cache saved to file successfully, now at {_cache.Count} items");
         } catch (Exception ex)
         {
             Console.WriteLine($"Error saving cache to file: {ex.Message}");
