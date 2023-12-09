@@ -27,7 +27,7 @@ public class MovieService
         var content = await response.Content.ReadAsStringAsync();
 
 
-        IList<(string key, string value)> attributes = new List<(string key, string value)>();
+        IList<(string role, string name)> attributes = new List<(string role, string name)>();
         string name;
         int id;
         int duration;
@@ -82,14 +82,14 @@ public class MovieService
         var studios = studiosRx.Matches(attrsMatch);
         foreach (Match studio in studios)
         {
-            attributes.Add((key:"studio",value:studio.Groups[1].Value));
+            attributes.Add((role:"studio",name:studio.Groups[1].Value));
         }
         //attrs - cast
         Regex castRX = new Regex(@"\/actor\/([^\/]+)");
         var castMembers = castRX.Matches(attrsMatch);
         foreach (Match actor in castMembers)
         {
-            attributes.Add((key:"cast",value:actor.Groups[1].Value));
+            attributes.Add((role:"cast",name:actor.Groups[1].Value));
         }
         //attrs - genre
         Regex genreRX = new Regex(@"genre.:\[(.*?)\]");
@@ -97,16 +97,16 @@ public class MovieService
         var genres = genresMatch.Replace("\"", "").Split(",");
         foreach (var genre in genres)
         {   
-            attributes.Add((key:"genre",value:genre));
+            attributes.Add((role:"genre",name:genre));
         }
         //attrs - ranking :)
-        attributes.Add((key:"rating",value:averageRating.ToString()));
+        attributes.Add((role:"rating",name:averageRating.ToString()));
         //attrs - writer
         Regex writersRx = new Regex(@"writer\/([^\/]+)");
         var writers = writersRx.Matches(content);
         foreach (Match writer in writers)
         {
-            attributes.Add((key:"writer",value:writer.Groups[1].Value));
+            attributes.Add((role:"writer",name:writer.Groups[1].Value));
 
         }
 
@@ -115,7 +115,7 @@ public class MovieService
         var directors = directorsRX.Matches(attrsMatch);
         foreach (Match match in directors)
         {
-            attributes.Add((key:"director",value:match.Groups[1].Value));
+            attributes.Add((role:"director",name:match.Groups[1].Value));
 
         }
         Regex relatedRX = new Regex("""

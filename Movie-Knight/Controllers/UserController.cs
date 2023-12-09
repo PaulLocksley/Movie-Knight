@@ -24,7 +24,7 @@ public class UserController
         _httpClientFactory = httpClientFactory;
     }
     [HttpGet("username")]
-    public async Task<string> GetByUserName(string username, bool getMovies=false)
+    public async Task<string> GetByUserName(string username, Filter[]? filters, bool getMovies=false)
     {
         //Console.WriteLine($"MC Count: {MovieCache22.Count}");
         var userService = new UserService(_httpClientFactory.CreateClient("RequestClient"));

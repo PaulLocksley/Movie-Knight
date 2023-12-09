@@ -178,7 +178,7 @@ function openTab(evt, viewName) {
             <a href="https://letterboxd.com/film/film:@movie.id/"><h4>@movie.name.Split("-").Select(x => 
                     x[..1].ToUpper() + x[1..]).Aggregate("", (x, y) => (x + " " + y))</h4></a>
             <p>Duration: @movie.duration mins</p>
-            <p>Genres: @movie.attributes.Where(x => x.key == "genre").Aggregate("",(x,y) => ""+y.value)
+            <p>Genres: @movie.attributes.Where(x => x.role == "genre").Aggregate("",(x,y) => ""+y.name)
             </p>
         </div>
     }

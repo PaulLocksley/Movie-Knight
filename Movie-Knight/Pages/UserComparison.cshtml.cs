@@ -3,6 +3,8 @@ using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
 using Htmx;
+using Microsoft.AspNetCore.Authorization.Infrastructure;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Primitives;
@@ -23,26 +25,29 @@ public class UserComparison : PageModel
     public StringBuilder scatterPlotData = new();
     public StringBuilder radarPlotData = new();
     public List<Movie> movieRecs = new();
+
     public async Task<IActionResult> OnGet(string userNames, Filter[]? filters)
     {
         var stopWatch = new Stopwatch();
         stopWatch.Start();
 
-        #region User Comparison 
+        #region User Comparison
+
         var users = userNames.Split(",")
             .Select(x => x.Trim())
             .ToArray();
-        
+
         if (users.Length >= 8)
         {
             return BadRequest("Requested too many users");
         }
+
         var invalidUserNameRegex = new Regex("[^a-zA-Z0-9_]");
         if (users.Any(x => invalidUserNameRegex.IsMatch(x)))
         {
             return BadRequest("A user contains an invalid character, if this is an error let me know somehow.");
         }
-        
+
         ComparisonUsers = new List<User>();
         var userService = new UserService(GetHttpClient.GetNamedHttpClient());
 
@@ -58,8 +63,8 @@ public class UserComparison : PageModel
             {
                 sharedList.IntersectWith(userList.Select(x => x.Key));
             }
-            
-            
+
+
             ComparisonUsers.Add(
                 new User(username,
                     userList,
@@ -71,16 +76,39 @@ public class UserComparison : PageModel
         IDictionary<int, int> totalDelta = new ConcurrentDictionary<int, int>();
         foreach (var movieId in sharedList)
         {
-            averageRatings[movieId] = ComparisonUsers.Select(x => 
-                                            x.userList[movieId]).Sum() /(double) ComparisonUsers.Count;
+            averageRatings[movieId] = ComparisonUsers.Select(x =>
+                x.userList[movieId]).Sum() / (double)ComparisonUsers.Count;
             totalDelta[movieId] = Convert.ToInt32(ComparisonUsers.Select(x =>
                 Math.Abs(x.userList[movieId] - averageRatings[movieId])).Sum());
         }
-        
+
         SharedMovies = sharedList.AsParallel().WithDegreeOfParallelism(12)
-            .Select(m => (MovieCache.GetMovie(m),averageRatings[m],totalDelta[m]))
+            .Select(m => (MovieCache.GetMovie(m), averageRatings[m], totalDelta[m]))
             .ToList();
-        SharedMovies = SharedMovies.OrderBy(m => m.Item3).ThenByDescending(m => m.Item2).ToList();
+        
+        if (filters is not null){
+            //todo: I think performance here will be bad. Look into a more elegant solution.
+            foreach (var filter in filters)
+            {
+                if(filter.type == Filter.Types.Require)
+                {
+                    SharedMovies = SharedMovies.Where(m =>
+                        {
+                            return m.movieData.attributes.Any(x => x.role == filter.role && x.name == filter.name);
+                        })
+                        .ToList();
+                    continue;
+                }
+                SharedMovies = SharedMovies.Where(m =>
+                    {
+                        return m.movieData.attributes.Any(x => x.role != filter.role && x.name != filter.name);
+                    })
+                    .ToList();
+                
+            }
+        }
+
+    SharedMovies = SharedMovies.OrderBy(m => m.Item3).ThenByDescending(m => m.Item2).ToList();
         totalAverageDelta = SharedMovies.Select(x => x.delta).Sum() / (double)SharedMovies.Count;
         totalAverageRating = Convert.ToInt32(SharedMovies.Select(x => x.mean).Sum()) / SharedMovies.Count;
         #endregion
@@ -131,7 +159,7 @@ public class UserComparison : PageModel
         foreach (var movie in SharedMovies)
         {
             foreach ((string role, string name)person in movie.movieData.attributes
-                         .Where(x => rolesWeCareAbout.Contains(x.key)))
+                         .Where(x => rolesWeCareAbout.Contains(x.role)))
             {
                 if (personData.ContainsKey(person))
                 {
@@ -178,16 +206,16 @@ public class UserComparison : PageModel
         var dictscores = new Dictionary<string, (int count, double sum)>();
         foreach (var m in SharedMovies.Where(m => m.movieData.averageRating.HasValue))
         {
-            foreach (var genre in m.movieData.attributes.Where(x => x.key == "genre"))
+            foreach (var genre in m.movieData.attributes.Where(x => x.role == "genre"))
             {
-                if (dictscores.ContainsKey(genre.value))
+                if (dictscores.ContainsKey(genre.name))
                 {
-                    dictscores[genre.value] = (dictscores[genre.value].count + 1,
-                        dictscores[genre.value].sum + m.movieData.averageRating!.Value);
+                    dictscores[genre.name] = (dictscores[genre.name].count + 1,
+                        dictscores[genre.name].sum + m.movieData.averageRating!.Value);
                 }
                 else
                 {
-                    dictscores[genre.value] = (1, m.movieData.averageRating!.Value);
+                    dictscores[genre.name] = (1, m.movieData.averageRating!.Value);
                 }
             }
         }
