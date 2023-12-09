@@ -109,7 +109,7 @@ public class UserComparison : PageModel
                 }
                 SharedMovies = SharedMovies.Where(m =>
                     {
-                        return m.movieData.attributes.Any(x => x.role != filter.role && x.name != filter.name);
+                        return m.movieData.attributes.All(x => !(x.role == filter.role && x.name == filter.name));
                     })
                     .ToList();
                 
