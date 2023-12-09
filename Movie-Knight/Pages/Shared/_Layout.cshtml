@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -7,14 +7,20 @@
     <link rel="stylesheet" href="css/pico.min.css">
     <script src="~/js/htmx.min.js"></script>
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/>
+    
+    <link rel="apple-touch-icon" sizes="180x180" href="img/icon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="img/icon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="img/icon/favicon-16x16.png">
 </head>
 <body>
 <script src="https://cdn.jsdelivr.net/npm/chart.js" async></script>
-<header class="border-bottom">
+<header class="border-bottom" style="padding-top: 0; padding-bottom: 0">
     <a asp-page="Index" style="text-decoration: none">
-    <div class="container">
-        <h3>Movie Knight</h3>
-    </div>
+        <div class="grid" >
+            <img src="img/web-logo-small.png" alt="" height="128px" width="128px" id="siteLogo"/>
+            <h3 style="margin-top: 40px">Movie Knight</h3>
+            
+        </div>
     </a>
  <hr/>
 </header>

@@ -2,10 +2,10 @@
 
 @using System.Net.Mime
 @using System.Text
+@using Microsoft.AspNetCore.Mvc.ApiExplorer
 @using Microsoft.Extensions.Primitives
 @model Movie_Knight.Pages.UserComparison
 @{ ArgumentNullException.ThrowIfNull(Model); }
-
 <script>
 function openTab(evt, viewName) {
   // Declare all variables
@@ -27,6 +27,62 @@ function openTab(evt, viewName) {
   document.getElementById(viewName).style.display = "block";
   evt.currentTarget.className += " active";
 }
+
+var fetchedMovies = []
+
+function showHidenRow(rowId) { 
+    let r = document.getElementById(rowId)
+    let img = document.getElementById("img-"+rowId)
+    console.log(fetchedMovies)
+    let id = rowId.split("-")[1]
+
+    if(!fetchedMovies.includes(id)){
+        htmx.ajax('GET', '/_filters?movieId='+id, 
+                    {target:'#'+rowId, swap:'outerHTML'})
+                    /*.then(() => {
+                    document.getElementById(rowId).style.display = "contents"
+                    })*/
+        fetchedMovies.push(id)
+        return
+    }
+    let current = r.style.display 
+    console.log(current)
+    if(current !== "none"){
+        r.style.display = "none"  
+        img.src = "img/expand_more.svg"  
+    }else{
+        r.style.display = "contents"   
+        img.src = "img/expand_less.svg"  
+    }
+    
+} 
+
+function filter(type, role, name){
+    const params =  new Proxy(new URLSearchParams(window.location.search), {
+                     get: (searchParams, prop) => searchParams.get(prop),
+                   });
+    let filterString = params.filterString;
+    if(filterString === null){
+        filterString = []
+    }else{
+        filterString = JSON.parse(filterString);    
+    }
+    filterString.push({"type":type,"role":role,"name":name})
+    let users = params.userNames;
+    console.log(type, role,name ,users ,filterString )
+
+    htmx.ajax('GET', '/UserComparison?userNames='+users+'&filterString='+JSON.stringify(filterString), 
+            {target:'#userAnalysis', swap:'innerHTML'}).then(() => {
+         // this code will be executed after the 'htmx:afterOnLoad' event,
+         // and before the 'htmx:xhr:loadend' event
+         var url = window.location.protocol + "//" + window.location.host + window.location.pathname + '?userNames='+users+'&filterString='+JSON.stringify(filterString);
+         window.history.pushState({path:url},'',url);
+
+         console.log('Content inserted successfully!');
+       });
+
+}
+
 </script>
 
 <div class="tab container">
@@ -45,18 +101,19 @@ function openTab(evt, viewName) {
                 <th>Name</th>
                 @foreach (var user in users)
                 {
-                    <th>@user.username</th>
+                    <th>@user.username <br/> Δx̄ @Model.userDeltas[user.username]</th>
                 }
                 <th>Average Rating</th>
                 <th>Total Delta to Average</th>
+                <th></th>
             </tr>
             @foreach (var movie in movies)
             {
-                <tr>
+                <tr onclick="showHidenRow('info-@movie.movieData.id')">
                     <td>
                         <a href="https://letterboxd.com/film/film:@movie.movieData.id/">
                             @movie.movieData.name.Split("-").Select(x =>
-                                     x[..1].ToUpper() + x[1..]).Aggregate("", (x, y) => (x + " " + y))
+                                x[..1].ToUpper() + x[1..]).Aggregate("", (x, y) => (x + " " + y))
                         </a>
                     </td>
 
@@ -64,8 +121,15 @@ function openTab(evt, viewName) {
                     {
                         <td>@user.userList[movie.Item1.id]</td>
                     }
-                    <td>@movie.Item2</td>
+                    <td>@Math.Round(movie.Item2,2)</td>
                     <td>@movie.Item3</td>
+                    <td >
+                        <img src="img/expand_more.svg" id="img-info-@movie.movieData.id" alt="Expand"/>
+                    </td>
+                </tr>
+                <tr id="info-@movie.movieData.id" class="hidden-row">
+                    <!-- HX-SWAP 16 FUCKING MB-->
+                    
                 </tr>
             }
         }
@@ -74,9 +138,11 @@ function openTab(evt, viewName) {
 </div>
 
 <!-- Graph Section -->
+<!-- 60px per movie -->
+
 
 <div id="graphView" class="tabcontent">
-    <div>
+    <div id="graphWrapper">
         <canvas id="movieScoreGraph"></canvas>
     </div>
     <div>
@@ -85,7 +151,22 @@ function openTab(evt, viewName) {
     <div>
         <canvas id="genreRadar"></canvas>
     </div>
-    
+    <style>
+        #graphView {
+          max-width: 100%;
+        }
+        #graphWrapper {
+          overflow-x: auto;
+          width: @(Model.SharedMovies.Count * 60)px;
+          height: 500px
+        }
+        #graphWrapper > canvas {
+              width: @(Model.SharedMovies.Count * 60)px;
+        }
+        #movieScoreGraph {
+          overflow-x: auto;
+        }
+    </style>
     <script>
       var ctx = document.getElementById('movieScoreGraph');
     
@@ -107,7 +188,6 @@ function openTab(evt, viewName) {
          }
        }
       });
-      
       var stx = document.getElementById('scatterPlot');
       new Chart(stx, {
            type: 'scatter',
@@ -140,7 +220,7 @@ function openTab(evt, viewName) {
          }
     );
     </script>
-    
+
 </div>
 
 
@@ -162,7 +242,7 @@ function openTab(evt, viewName) {
             <a href="https://letterboxd.com/film/film:@movie.id/"><h4>@movie.name.Split("-").Select(x => 
                     x[..1].ToUpper() + x[1..]).Aggregate("", (x, y) => (x + " " + y))</h4></a>
             <p>Duration: @movie.duration mins</p>
-            <p>Genres: @movie.attributes.Where(x => x.key == "genre").Aggregate("",(x,y) => ""+y.value)
+            <p>Genres: @movie.attributes.Where(x => x.role == "genre").Aggregate("",(x,y) => ""+y.name)
             </p>
         </div>
     }
