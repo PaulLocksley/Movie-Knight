@@ -26,6 +26,27 @@ function openTab(evt, viewName) {
   document.getElementById(viewName).style.display = "block";
   evt.currentTarget.className += " active";
 }
+
+function showHidenRow(rowId) { 
+    let r = document.getElementById(rowId)
+    let img = document.getElementById("img-"+rowId)
+
+    let current = r.style.display 
+    console.log(current)
+    if(current !== "none"){
+        r.style.display = "none"  
+        img.src = "img/expand_more.svg"  
+    }else{
+        r.style.display = "contents"   
+        img.src = "img/expand_less.svg"  
+    }
+    
+} 
+
+function filter(type, role, name){
+    console.log(type, role,name )
+}
+
 </script>
 
 <div class="tab container">
@@ -48,14 +69,15 @@ function openTab(evt, viewName) {
                 }
                 <th>Average Rating</th>
                 <th>Total Delta to Average</th>
+                <th></th>
             </tr>
             @foreach (var movie in movies)
             {
-                <tr>
+                <tr onclick="showHidenRow('info-@movie.movieData.id')">
                     <td>
                         <a href="https://letterboxd.com/film/film:@movie.movieData.id/">
                             @movie.movieData.name.Split("-").Select(x =>
-                                     x[..1].ToUpper() + x[1..]).Aggregate("", (x, y) => (x + " " + y))
+                                x[..1].ToUpper() + x[1..]).Aggregate("", (x, y) => (x + " " + y))
                         </a>
                     </td>
 
@@ -65,6 +87,42 @@ function openTab(evt, viewName) {
                     }
                     <td>@Math.Round(movie.Item2,2)</td>
                     <td>@movie.Item3</td>
+                    <td >
+                        <img src="img/expand_more.svg" id="img-info-@movie.movieData.id" alt="Expand"/>
+                    </td>
+                </tr>
+                <tr id="info-@movie.movieData.id"  class="hidden-row">
+                <td colspan="2">
+                    <div style="width: 400px"><h6>Description:</h6>
+                        <p> @movie.movieData.description </p>
+                    </div>
+                </td>
+                @foreach (var role in Model.displayFilterRolesWeCareAbout)
+                {
+                    <td colspan="2">
+                    <div class="filters">
+                        <h5>@(role[0] == "cast" ? "Cast" : "Other" )</h5>
+                        <span></span>
+
+                        @foreach (var atr in movie.movieData.attributes.Where(x =>
+                            role.Contains(x.role)
+                            ))
+                        {
+                            <div class="filter">
+                                <button class="remove-filter" onclick="filter('Remove','@atr.role','@atr.name')">
+                                    <img src="img/remove.svg" alt="remove filter"/>
+                                </button>
+                                <p class="filter-label">@atr.name.Split("-").Select(x =>
+                                                    x[..1].ToUpper() + x[1..]).Aggregate("", (x, y) => (x + " " + y))</p>
+                                <button class="add-filter" onclick="filter('Require','@atr.role','@atr.name')">
+                                    <img src="img/add.svg" alt="Add filter"/>
+                                </button>
+                            </div>
+                        }
+                    </div>
+                    </td>
+
+                }
                 </tr>
             }
         }

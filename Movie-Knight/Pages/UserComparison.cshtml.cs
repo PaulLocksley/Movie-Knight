@@ -27,7 +27,7 @@ public class UserComparison : PageModel
     public StringBuilder radarPlotData = new();
     public List<Movie> movieRecs = new();
     public string[] rolesWeCareAbout = {"cast","studio","writer","director"};
-
+    public string[][] displayFilterRolesWeCareAbout = { new [] {"cast"}, new [] {"studio","writer","director"} };
     public Dictionary<string, double> userDeltas = new();
     public async Task<IActionResult> OnGet(string userNames, string? filterString)
     {
