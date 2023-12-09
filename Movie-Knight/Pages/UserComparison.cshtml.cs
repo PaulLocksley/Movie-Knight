@@ -25,7 +25,7 @@ public class UserComparison : PageModel
     public StringBuilder scatterPlotData = new();
     public StringBuilder radarPlotData = new();
     public List<Movie> movieRecs = new();
-
+    public Dictionary<string, double> userDeltas = new();
     public async Task<IActionResult> OnGet(string userNames, Filter[]? filters)
     {
         var stopWatch = new Stopwatch();
@@ -71,7 +71,7 @@ public class UserComparison : PageModel
                     null));
             Console.WriteLine($"UserList length {userList.Count} sharedCount = {sharedList.Count}");
         }
-
+        //Delta calculations.
         IDictionary<int, double> averageRatings = new ConcurrentDictionary<int, double>();
         IDictionary<int, int> totalDelta = new ConcurrentDictionary<int, int>();
         foreach (var movieId in sharedList)
@@ -85,7 +85,7 @@ public class UserComparison : PageModel
         SharedMovies = sharedList.AsParallel().WithDegreeOfParallelism(12)
             .Select(m => (MovieCache.GetMovie(m), averageRatings[m], totalDelta[m]))
             .ToList();
-        
+        //Filters
         if (filters is not null){
             //todo: I think performance here will be bad. Look into a more elegant solution.
             foreach (var filter in filters)
@@ -107,11 +107,30 @@ public class UserComparison : PageModel
                 
             }
         }
-
-    SharedMovies = SharedMovies.OrderBy(m => m.Item3).ThenByDescending(m => m.Item2).ToList();
+        
+        
+        //Final parsing.
+        SharedMovies = SharedMovies.OrderBy(m => m.Item3).ThenByDescending(m => m.Item2).ToList();
         totalAverageDelta = SharedMovies.Select(x => x.delta).Sum() / (double)SharedMovies.Count;
         totalAverageRating = Convert.ToInt32(SharedMovies.Select(x => x.mean).Sum()) / SharedMovies.Count;
+
+        foreach (var user in ComparisonUsers)
+        {
+            var userTotal = 0;
+            var meanTotal = 0.0;
+            foreach (var m in SharedMovies)
+            {
+                userTotal += user.userList[m.movieData.id];
+                meanTotal += m.mean;
+            }
+            userDeltas[user.username] = Math.Round(Math.Abs(userTotal - meanTotal) / SharedMovies.Count,3);
+
+        }
+        
         #endregion
+        
+        
+        
         Console.WriteLine($"comparison took: {stopWatch.ElapsedMilliseconds}");
         stopWatch.Reset();
         stopWatch.Start();
@@ -188,18 +207,19 @@ public class UserComparison : PageModel
                                  """);
         foreach (var role in rolesWeCareAbout)
         {
+            var tempItems = personData
+                .Where(p => p.Key.role == role && p.Value.frequency > 1);
+                
             scatterPlotData.Append($$"""
-                                     {
-                                     label: '{{role}}',
-                                     data: [ 
-                """);
-             scatterPlotData.Append(personData
-                            .Where(p => p.Key.role == role && p.Value.frequency > 1)
-                            .Select(x => $$"""
-                                           { x: {{x.Value.frequency}}, y: {{x.Value.score}},name:'{{x.Key.name}}' }
-                                           """).Aggregate((x,y) => (x + ","+y)));
-             scatterPlotData.Append("]},");
-             //todo: future paul you will forget https://stackoverflow.com/questions/44661671/chart-js-scatter-chart-displaying-label-specific-to-point-in-tooltip
+                                                          {
+                                                          label: '{{role}}',
+                                                          data: [
+                                     """);
+            if (tempItems.Any())
+                scatterPlotData.Append(tempItems.Select(x => $$"""
+                                                               { x: {{x.Value.frequency}}, y: {{x.Value.score}},name:'{{x.Key.name}}' }
+                                                               """).Aggregate((x, y) => (x + "," + y)));
+            scatterPlotData.Append("]},");
         }
 
         scatterPlotData.Remove(scatterPlotData.Length - 1, 1);

@@ -45,7 +45,7 @@ function openTab(evt, viewName) {
                 <th>Name</th>
                 @foreach (var user in users)
                 {
-                    <th>@user.username</th>
+                    <th>@user.username <br/> Δx̄ @Model.userDeltas[user.username]</th>
                 }
                 <th>Average Rating</th>
                 <th>Total Delta to Average</th>
