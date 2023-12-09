@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Text;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using Htmx;
 using Microsoft.AspNetCore.Authorization.Infrastructure;
@@ -26,10 +27,15 @@ public class UserComparison : PageModel
     public StringBuilder radarPlotData = new();
     public List<Movie> movieRecs = new();
     public Dictionary<string, double> userDeltas = new();
-    public async Task<IActionResult> OnGet(string userNames, Filter[]? filters)
+    public async Task<IActionResult> OnGet(string userNames, string? filterString)
     {
         var stopWatch = new Stopwatch();
         stopWatch.Start();
+        Filter[]? filters = null;
+        if (filterString is not null)
+        {
+            filters = JsonSerializer.Deserialize<Filter[]>(filterString);
+        }
 
         #region User Comparison
 
@@ -105,6 +111,11 @@ public class UserComparison : PageModel
                     })
                     .ToList();
                 
+            }
+
+            if (!SharedMovies.Any())
+            {
+                return BadRequest();
             }
         }
         
