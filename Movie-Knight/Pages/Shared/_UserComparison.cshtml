@@ -2,6 +2,7 @@
 
 @using System.Net.Mime
 @using System.Text
+@using Microsoft.AspNetCore.Mvc.ApiExplorer
 @using Microsoft.Extensions.Primitives
 @model Movie_Knight.Pages.UserComparison
 @{ ArgumentNullException.ThrowIfNull(Model); }
@@ -27,10 +28,23 @@ function openTab(evt, viewName) {
   evt.currentTarget.className += " active";
 }
 
+var fetchedMovies = []
+
 function showHidenRow(rowId) { 
     let r = document.getElementById(rowId)
     let img = document.getElementById("img-"+rowId)
+    console.log(fetchedMovies)
+    let id = rowId.split("-")[1]
 
+    if(!fetchedMovies.includes(id)){
+        htmx.ajax('GET', '/_filters?movieId='+id, 
+                    {target:'#'+rowId, swap:'outerHTML'})
+                    /*.then(() => {
+                    document.getElementById(rowId).style.display = "contents"
+                    })*/
+        fetchedMovies.push(id)
+        return
+    }
     let current = r.style.display 
     console.log(current)
     if(current !== "none"){
@@ -44,7 +58,29 @@ function showHidenRow(rowId) {
 } 
 
 function filter(type, role, name){
-    console.log(type, role,name )
+    const params =  new Proxy(new URLSearchParams(window.location.search), {
+                     get: (searchParams, prop) => searchParams.get(prop),
+                   });
+    let filterString = params.filterString;
+    if(filterString === null){
+        filterString = []
+    }else{
+        filterString = JSON.parse(filterString);    
+    }
+    filterString.push({"type":type,"role":role,"name":name})
+    let users = params.userNames;
+    console.log(type, role,name ,users ,filterString )
+
+    htmx.ajax('GET', '/UserComparison?userNames='+users+'&filterString='+JSON.stringify(filterString), 
+            {target:'#userAnalysis', swap:'innerHTML'}).then(() => {
+         // this code will be executed after the 'htmx:afterOnLoad' event,
+         // and before the 'htmx:xhr:loadend' event
+         var url = window.location.protocol + "//" + window.location.host + window.location.pathname + '?userNames='+users+'&filterString='+JSON.stringify(filterString);
+         window.history.pushState({path:url},'',url);
+
+         console.log('Content inserted successfully!');
+       });
+
 }
 
 </script>
@@ -91,38 +127,9 @@ function filter(type, role, name){
                         <img src="img/expand_more.svg" id="img-info-@movie.movieData.id" alt="Expand"/>
                     </td>
                 </tr>
-                <tr id="info-@movie.movieData.id"  class="hidden-row">
-                <td colspan="2">
-                    <div style="width: 400px"><h6>Description:</h6>
-                        <p> @movie.movieData.description </p>
-                    </div>
-                </td>
-                @foreach (var role in Model.displayFilterRolesWeCareAbout)
-                {
-                    <td colspan="2">
-                    <div class="filters">
-                        <h5>@(role[0] == "cast" ? "Cast" : "Other" )</h5>
-                        <span></span>
-
-                        @foreach (var atr in movie.movieData.attributes.Where(x =>
-                            role.Contains(x.role)
-                            ))
-                        {
-                            <div class="filter">
-                                <button class="remove-filter" onclick="filter('Remove','@atr.role','@atr.name')">
-                                    <img src="img/remove.svg" alt="remove filter"/>
-                                </button>
-                                <p class="filter-label">@atr.name.Split("-").Select(x =>
-                                                    x[..1].ToUpper() + x[1..]).Aggregate("", (x, y) => (x + " " + y))</p>
-                                <button class="add-filter" onclick="filter('Require','@atr.role','@atr.name')">
-                                    <img src="img/add.svg" alt="Add filter"/>
-                                </button>
-                            </div>
-                        }
-                    </div>
-                    </td>
-
-                }
+                <tr id="info-@movie.movieData.id" class="hidden-row">
+                    <!-- HX-SWAP 16 FUCKING MB-->
+                    
                 </tr>
             }
         }

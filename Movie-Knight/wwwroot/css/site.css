@@ -91,8 +91,14 @@ body {
   width: 300px;
   overflow-y: scroll;
   align-content:  start;
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
 
 }
+.filters::-webkit-scrollbar {
+  display: none;
+}
+
 .filter {
   flex-flow: row;
   display:flex;

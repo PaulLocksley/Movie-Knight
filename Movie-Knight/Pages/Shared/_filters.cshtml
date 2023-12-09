@@ -1,10 +1,58 @@
-@page
-@model Movie_Knight.Pages.UserComparison
+@page "/_filters"
+@model Movie_Knight.Pages.Shared._filters
+@{ ArgumentNullException.ThrowIfNull(Model); }
+
+<tr id="info-@Model.movie.id" class="hidden-row" style="display: contents;">
+    <td colspan="2">
+        <div style="width: 400px"><h6>Description:</h6>
+            <p> @Model.movie.description </p>
+        </div>
+    </td>
+    @foreach (var role in Model.displayFilterRolesWeCareAbout)
+    {
+        <td colspan="2">
+            <div class="filters">
+                <h5>@(role[0] == "cast" ? "Cast" : "Other")</h5>
+                <span></span>
+
+                @foreach (var atr in Model.movie.attributes.Where(x =>
+                    role.Contains(x.role)
+                    ))
+                {
+                    <div class="filter">
+                        <button class="remove-filter" onclick="filter('Remove','@atr.role','@atr.name')">
+                            <img src="img/remove.svg" alt="remove filter"/>
+                        </button>
+
+                        <p class="filter-label">@atr.name.Split("-").Select(x =>
+                                                {
+                                                    if (x.Length == 0)
+                                                    {
+                                                        return "";
+                                                    }
+                                                    var tmpString = x[..1].ToUpper();
+                                                    if (x.Length > 1)
+                                                    {
+                                                        tmpString += x[1..];
+                                                    }
+                                                    return tmpString;
+                                                }).Aggregate("", (x, y) => (x + " " + y))</p>
+                        <button class="add-filter" onclick="filter('Require','@atr.role','@atr.name')">
+                            <img src="img/add.svg" alt="Add filter"/>
+                        </button>
+                    </div>
+                }
+            </div>
+        </td>
+
+    }
+</tr>
+@{
+    Layout = null;
+}
 
 
-
-
-<div class="filter-groups">
+@*<div class="filter-groups">
     @foreach(var ct in @Model.rolesWeCareAbout){
         <div class="filters">
             <h4>@ct</h4>
@@ -21,4 +69,4 @@
             }
         </div>
     }
-</div>
+</div>*@
