@@ -87,6 +87,7 @@ public class UserComparison : PageModel
         Console.WriteLine($"comparison took: {stopWatch.ElapsedMilliseconds}");
         stopWatch.Reset();
         stopWatch.Start();
+        
         #region graphing section
         barGraphData.Append($$"""
             labels: [{{SharedMovies.Select(x => $""" "{x.movieData.name}" """).Aggregate((x,y) => 
@@ -164,7 +165,7 @@ public class UserComparison : PageModel
                                      data: [ 
                 """);
              scatterPlotData.Append(personData
-                            .Where(p => p.Key.role == role)
+                            .Where(p => p.Key.role == role && p.Value.frequency > 1)
                             .Select(x => $$"""
                                            { x: {{x.Value.frequency}}, y: {{x.Value.score}},name:'{{x.Key.name}}' }
                                            """).Aggregate((x,y) => (x + ","+y)));
