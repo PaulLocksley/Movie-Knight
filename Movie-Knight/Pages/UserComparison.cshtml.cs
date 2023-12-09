@@ -118,7 +118,8 @@ public class UserComparison : PageModel
         
         #region graphing section
         barGraphData.Append($$"""
-            labels: [{{SharedMovies.Select(x => $""" "{x.movieData.name}" """).Aggregate((x,y) => 
+            labels: [{{SharedMovies.Chunk(30).Last()
+                .Select(x => $""" "{x.movieData.name}" """).Aggregate((x,y) => 
                 x +"," + y)}}],
             datasets: [
             """);
@@ -128,7 +129,7 @@ public class UserComparison : PageModel
                                    {
                                    label: '{{user.username}}',
                                    data: [{{
-                                       SharedMovies.Select(x => user.userList[x.movieData.id])
+                                       SharedMovies.Chunk(30).Last().Select(x => user.userList[x.movieData.id])
                                            .Aggregate("",(x,y) => $"{x},{y}")[1..]
                                        
                                    }}]
@@ -139,13 +140,13 @@ public class UserComparison : PageModel
                                {
                                label: 'Group average',
                                data: [{{
-                                   SharedMovies.Select(x => x.mean)
+                                   SharedMovies.Chunk(30).Last().Select(x => x.mean)
                                        .Aggregate("",(x,y) => $"{x},{y}")[1..]
                                    }}]
                                },{
                                label: 'All User Average',
                                data: [{{
-                                   SharedMovies.Select(x => (x.movieData.averageRating))
+                                   SharedMovies.Chunk(30).Last().Select(x => (x.movieData.averageRating))
                                        .Aggregate("",(x,y) => $"{x},{y}")[1..]
 
                                    }}]
