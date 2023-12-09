@@ -26,6 +26,8 @@ public class UserComparison : PageModel
     public StringBuilder scatterPlotData = new();
     public StringBuilder radarPlotData = new();
     public List<Movie> movieRecs = new();
+    public string[] rolesWeCareAbout = {"cast","studio","writer","director"};
+
     public Dictionary<string, double> userDeltas = new();
     public async Task<IActionResult> OnGet(string userNames, string? filterString)
     {
@@ -186,7 +188,6 @@ public class UserComparison : PageModel
         barGraphData.Append("]");
 
         var personData = new Dictionary<(string role, string name), (int frequency, double score)>();
-        string[] rolesWeCareAbout = {"cast","studio","writer","director"};
         foreach (var movie in SharedMovies)
         {
             foreach ((string role, string name)person in movie.movieData.attributes

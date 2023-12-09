@@ -1,0 +1,24 @@
+@page
+@model Movie_Knight.Pages.UserComparison
+
+
+
+
+<div class="filter-groups">
+    @foreach(var ct in @Model.rolesWeCareAbout){
+        <div class="filters">
+            <h4>@ct</h4>
+            @foreach (var a in Model.SharedMovies)
+            {
+                @foreach (var atr in a.movieData.attributes.Where(at => at.role == ct))
+                {
+                    <div class="filter">
+                        <button class="remove-filter" onclick=""><img src="img/remove.svg" alt="Remove"/></button>
+                        <p class="filter-label">@atr.name</p>
+                        <button class="add-filter" onclick=""><img src="img/add.svg" alt="Remove"/></button>
+                    </div>
+                }
+            }
+        </div>
+    }
+</div>

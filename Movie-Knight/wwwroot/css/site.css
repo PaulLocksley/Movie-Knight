@@ -74,3 +74,49 @@ body {
     display: none;
   }
 }
+
+.filter-groups {
+  /*
+  visibility: hidden;
+  */
+  display: flex;
+  flex-flow: row;
+
+}
+
+.filters{
+  display: flex;
+  flex-flow: column;
+  height: 300px;
+  overflow: scroll;
+}
+.filter {
+  flex-flow: row;
+  display:flex;
+  flex: auto;
+  margin-bottom: 5px;
+}
+.filter > button {
+  width:  50px;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.add-filter{
+  border-radius: 0 5px 5px 0;
+  background-color: #2e7d32;
+}
+.remove-filter{
+  border-radius: 5px 0 0 5px;
+  background-color: #b71c1c;
+}
+.filter-label {
+  background-color: #1f2d38;
+  padding-left: 10px;
+  padding-right: 10px;
+  overflow: hidden;
+  text-wrap: none;
+  margin: 0;
+}
