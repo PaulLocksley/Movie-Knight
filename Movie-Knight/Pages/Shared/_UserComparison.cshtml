@@ -74,9 +74,11 @@ function openTab(evt, viewName) {
 </div>
 
 <!-- Graph Section -->
+<!-- 60px per movie -->
+
 
 <div id="graphView" class="tabcontent">
-    <div>
+    <div id="graphWrapper">
         <canvas id="movieScoreGraph"></canvas>
     </div>
     <div>
@@ -85,7 +87,22 @@ function openTab(evt, viewName) {
     <div>
         <canvas id="genreRadar"></canvas>
     </div>
-    
+    <style>
+        #graphView {
+          max-width: 100%;
+        }
+        #graphWrapper {
+          overflow-x: auto;
+          width: @(Model.SharedMovies.Count * 60)px;
+          height: 500px
+        }
+        #graphWrapper > canvas {
+              width: @(Model.SharedMovies.Count * 60)px;
+        }
+        #movieScoreGraph {
+          overflow-x: auto;
+        }
+    </style>
     <script>
       var ctx = document.getElementById('movieScoreGraph');
     
@@ -107,7 +124,6 @@ function openTab(evt, viewName) {
          }
        }
       });
-      
       var stx = document.getElementById('scatterPlot');
       new Chart(stx, {
            type: 'scatter',
@@ -140,7 +156,7 @@ function openTab(evt, viewName) {
          }
     );
     </script>
-    
+
 </div>
 
 

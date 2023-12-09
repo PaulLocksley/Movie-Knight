@@ -23,7 +23,7 @@ public class UserComparison : PageModel
     public StringBuilder scatterPlotData = new();
     public StringBuilder radarPlotData = new();
     public List<Movie> movieRecs = new();
-    public async Task<IActionResult> OnGet(string userNames)
+    public async Task<IActionResult> OnGet(string userNames, Filter[]? filters)
     {
         var stopWatch = new Stopwatch();
         stopWatch.Start();

@@ -20,7 +20,7 @@ public static class MovieCache
     static MovieCache()
     {
         jt = new JsonSerializer();
-        _filePath = $"{Environment.CurrentDirectory}MovieCache.420";
+        _filePath = $"{Environment.CurrentDirectory}MovieCache.json";
         _movieService = new MovieService(GetHttpClient.GetNamedHttpClient());
         _cache =  new ConcurrentDictionary<int, Movie>();
         try
