@@ -32,7 +32,7 @@ public class UserService
         var response = await _httpClient.GetAsync(userUrl);
         if (!response.IsSuccessStatusCode)
         {
-            throw new Exception("Letterboxd returned for user " + username+ " invalid code " + response.StatusCode + " : " + response.Content);
+            throw new FileNotFoundException("Letterboxd returned for user " + username+ " invalid code " + response.StatusCode + " : " + response.Content);
         }
         var content = await response.Content.ReadAsStringAsync();
         var movieList = new ConcurrentDictionary<int, int>();
