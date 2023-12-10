@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Primitives;
 using Movie_Knight.Controllers;
 using Movie_Knight.Models;
+using Movie_Knight.Pages.Shared;
 using Movie_Knight.Services;
 using HostingEnvironmentExtensions = Microsoft.AspNetCore.Hosting.HostingEnvironmentExtensions;
 
@@ -34,6 +35,11 @@ public class UserComparison : PageModel
         var stopWatch = new Stopwatch();
         stopWatch.Start();
         Filter[]? filters = null;
+        ComparisonUsers = new List<User>();
+        var userService = new UserService(GetHttpClient.GetNamedHttpClient());
+
+        var sharedList = new HashSet<int>();
+        
         if (filterString is not null)
         {
             filters = JsonSerializer.Deserialize<Filter[]>(filterString);
@@ -41,87 +47,95 @@ public class UserComparison : PageModel
 
         #region User Comparison
 
-        var users = userNames.Split(",")
-            .Select(x => x.Trim())
-            .ToArray();
-
-        if (users.Length >= 8)
+        try
         {
-            return BadRequest("Requested too many users");
-        }
+            var users = userNames.Split(",")
+                .Select(x => x.Trim())
+                .ToArray();
 
-        var invalidUserNameRegex = new Regex("[^a-zA-Z0-9_]");
-        if (users.Any(x => invalidUserNameRegex.IsMatch(x)))
-        {
-            return BadRequest("A user contains an invalid character, if this is an error let me know somehow.");
-        }
-
-        ComparisonUsers = new List<User>();
-        var userService = new UserService(GetHttpClient.GetNamedHttpClient());
-
-        var sharedList = new HashSet<int>();
-        foreach (var username in users)
-        {
-            var userList = await userService.FetchUser(username);
-            if (sharedList.Count == 0)
+            if (users.Length >= 8)
             {
-                sharedList = userList.Select(x => x.Key).ToHashSet();
-            }
-            else
-            {
-                sharedList.IntersectWith(userList.Select(x => x.Key));
+                return BadRequest("Requested too many users");
             }
 
-
-            ComparisonUsers.Add(
-                new User(username,
-                    userList,
-                    null));
-            Console.WriteLine($"UserList length {userList.Count} sharedCount = {sharedList.Count}");
-        }
-        //Delta calculations.
-        IDictionary<int, double> averageRatings = new ConcurrentDictionary<int, double>();
-        IDictionary<int, int> totalDelta = new ConcurrentDictionary<int, int>();
-        foreach (var movieId in sharedList)
-        {
-            averageRatings[movieId] = ComparisonUsers.Select(x =>
-                x.userList[movieId]).Sum() / (double)ComparisonUsers.Count;
-            totalDelta[movieId] = Convert.ToInt32(ComparisonUsers.Select(x =>
-                Math.Abs(x.userList[movieId] - averageRatings[movieId])).Sum());
-        }
-
-        SharedMovies = sharedList.AsParallel().WithDegreeOfParallelism(12)
-            .Select(m => (MovieCache.GetMovie(m), averageRatings[m], totalDelta[m]))
-            .ToList();
-        //Filters
-        if (filters is not null){
-            //todo: I think performance here will be bad. Look into a more elegant solution.
-            foreach (var filter in filters)
+            var invalidUserNameRegex = new Regex("[^a-zA-Z0-9_]");
+            if (users.Any(x => invalidUserNameRegex.IsMatch(x)))
             {
-                if(filter.type == Filter.Types.Require)
+                return BadRequest("A user contains an invalid character, if this is an error let me know somehow.");
+            }
+
+            foreach (var username in users)
+            {
+                var userList = await userService.FetchUser(username);
+                if (sharedList.Count == 0)
                 {
+                    sharedList = userList.Select(x => x.Key).ToHashSet();
+                }
+                else
+                {
+                    sharedList.IntersectWith(userList.Select(x => x.Key));
+                }
+
+
+                ComparisonUsers.Add(
+                    new User(username,
+                        userList,
+                        null));
+                Console.WriteLine($"UserList length {userList.Count} sharedCount = {sharedList.Count}");
+            }
+
+            //Delta calculations.
+            IDictionary<int, double> averageRatings = new ConcurrentDictionary<int, double>();
+            IDictionary<int, int> totalDelta = new ConcurrentDictionary<int, int>();
+            foreach (var movieId in sharedList)
+            {
+                averageRatings[movieId] = ComparisonUsers.Select(x =>
+                    x.userList[movieId]).Sum() / (double)ComparisonUsers.Count;
+                totalDelta[movieId] = Convert.ToInt32(ComparisonUsers.Select(x =>
+                    Math.Abs(x.userList[movieId] - averageRatings[movieId])).Sum());
+            }
+
+            SharedMovies = sharedList.AsParallel().WithDegreeOfParallelism(12)
+                .Select(m => (MovieCache.GetMovie(m), averageRatings[m], totalDelta[m]))
+                .ToList();
+            //Filters
+            if (filters is not null)
+            {
+                //todo: I think performance here will be bad. Look into a more elegant solution.
+                foreach (var filter in filters)
+                {
+                    if (filter.type == Filter.Types.Require)
+                    {
+                        SharedMovies = SharedMovies.Where(m =>
+                            {
+                                return m.movieData.attributes.Any(x =>
+                                    x.role == filter.role && x.name == filter.name);
+                            })
+                            .ToList();
+                        continue;
+                    }
+
                     SharedMovies = SharedMovies.Where(m =>
                         {
-                            return m.movieData.attributes.Any(x => x.role == filter.role && x.name == filter.name);
+                            return m.movieData.attributes.All(
+                                x => !(x.role == filter.role && x.name == filter.name));
                         })
                         .ToList();
-                    continue;
-                }
-                SharedMovies = SharedMovies.Where(m =>
-                    {
-                        return m.movieData.attributes.All(x => !(x.role == filter.role && x.name == filter.name));
-                    })
-                    .ToList();
-                
-            }
 
-            if (!SharedMovies.Any())
-            {
-                return BadRequest();
+                }
+
+                if (!SharedMovies.Any())
+                {
+                    return BadRequest();
+                }
             }
         }
+        catch (FileNotFoundException e)
+        {
+            return Partial("_UserNotFound");
+        }
         
-        
+
         //Final parsing.
         SharedMovies = SharedMovies.OrderBy(m => m.Item3).ThenByDescending(m => m.Item2).ToList();
         totalAverageDelta = SharedMovies.Select(x => x.delta).Sum() / (double)SharedMovies.Count;
