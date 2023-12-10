@@ -103,8 +103,9 @@ function filter(type, role, name){
                 {
                     <th>@user.username <br/> Δx̄ @Model.userDeltas[user.username]</th>
                 }
-                <th>Average Rating</th>
-                <th>Total Delta to Average</th>
+                <th>Group Average Rating</th>
+                <th>Total Delta to Average <br/> x̄ @(Model.SharedMovies.Sum(x => x.delta)
+                                                        /Model.SharedMovies.Count)</th>
                 <th></th>
             </tr>
             @foreach (var movie in movies)
