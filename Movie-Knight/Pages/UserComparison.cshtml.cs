@@ -237,7 +237,7 @@ public class UserComparison : PageModel
         foreach (var role in rolesWeCareAbout)
         {
             var tempItems = personData
-                .Where(p => p.Key.role == role && p.Value.frequency > 1);
+                .Where(p => p.Key.role == role && p.Value.frequency > 2);
                 
             scatterPlotData.Append($$"""
                                                           {

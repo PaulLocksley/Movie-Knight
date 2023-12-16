@@ -137,3 +137,14 @@ body {
 input:invalid {
   border: red solid 3px;
 }
+
+#loading {
+  min-height: 0;
+  min-width: 0;
+}
+
+#graphView > div {
+  max-height: 50vh;
+  min-width: 50vw;
+  
+}

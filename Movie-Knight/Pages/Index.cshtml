@@ -9,25 +9,98 @@
 
 
 <div class="container" id="entryFrom">
-    <h4>>Enter a comma seperated list of usernames to compare. (max 8) </h4>
-    <input type="text" pattern="[A-Za-z0-9,_\s]+" name="userNames" 
-           placeholder="James-Holden, Naomi-Nagata, Tim, Alex-Kamal, Peaches, Gunny"/>  
-        
+    <form>
+        <h4>>Enter a comma seperated list of usernames to compare. (max 8) </h4>
+        <input type="text" pattern="[A-Za-z0-9,_\s]+" name="userNames"
+               placeholder="James-Holden, Naomi-Nagata, Tim, Alex-Kamal, Peaches, Gunny"/>
+        <button hx-get="UserComparison"
+                hx-include="[name='userNames']"
+                hx-target="#userAnalysis"
+                hx-indicator="#spinner"
+                hx-replace-url="true">
+            Load user comparison
+        </button>
+    </form>
+    <img id="spinner" class="htmx-indicator" src="/img/loading.svg" alt="Loading indicator"/>
 
-    <button hx-get="UserComparison"
-            hx-include="[name='userNames']"
-            hx-target="#userAnalysis"
-            hx-indicator="#spinner"
-            hx-replace-url="true">
-        Load user comparison
-    </button>
-
-    <div class="container-fluid">
-        <img  id="spinner" class="htmx-indicator" src="/img/loading.svg" alt="Loading indicator"/>
-    </div>
     <div id="userAnalysis">
+        <h3>Welcome to Movie Knight</h3>
+        <h4>Group analysis and recommendations for letterboxd users </h4>
+        <ul>
+        <li>Judge your friends bad taste:</li>
+        <table>
+            <tbody><tr>
+                <th>Name</th>
+                <th>James</th>
+                <th>Alex</th>
+                <th>Naomi</th>
+                <th>Group Average Rating</th>
+                <th>Total Delta to Average</th>
+            </tr>
+            <tr>
+                <td>
+                    <a>
+                        Paul Blart Mall Cop
+                    </a>
+                </td>
+                <td>4</td>
+                <td style="background: darkred">10</td>
+                <td>2</td>
+                <td>5</td>
+                <td>8</td>
+
+            </tr>
+            </tbody></table>
+        <li>See your favourite Actors/Writers/Directors as a group:</li>
+        <div>
+                <canvas id="scatterPlot"></canvas>
+        </div>
+        <li>Find new movies the whole group will enjoy that nobody has seen</li>
+        </ul>
+        <h3>Instructions:</h3>
+        <ol>
+            <li>For each user you would like to include navigate to their letterboxd profile and copy the system name 
+                from the address bar ie: <img src="img/UsernName.jpg" alt="A URL with the Path highlighted"/> </li>
+            <li>
+                Paste the above user names into the text field (With commas between users) at the top of the page.</li>
+            <li>Press load user comparison.</li>
+            <li>Optional: Open movie details and add filters to get more granular information ie:
+                <img src="img/filter-example.jpg" alt=""/> In the above image you can press Plus to only include movies with Wes Anderson as a director or Minus to remove all movies directed by Wes Anderson</li>
+        </ol>
         <img src="img/Kenneth.webp" alt=""/>
     </div>
-    
+
 
 </div>
+
+<script>
+    window.addEventListener('load', function () {
+            var stx = document.getElementById('scatterPlot');
+            new Chart(stx, {
+                 type: 'scatter',
+                 data: {
+      labels: ['cast','studio','writer','director'],
+      datasets:[
+                           {
+                           label: 'cast',
+                           data: [{ x: 3, y: 7.666666666666667,name:'uma-thurman' },{ x: 3, y: 5.666666666666667,name:'vivica-a-fox' },{ x: 4, y: 4.916666666666666,name:'jonathan-loughran' },{ x: 3, y: 7.222222222222222,name:'yoshiyuki-morishita' },{ x: 3, y: 6.666666666666667,name:'yoji-tanaka' },{ x: 4, y: 5.916666666666667,name:'samuel-l-jackson' },{ x: 3, y: 7,name:'bob-stephenson' },{ x: 4, y: 4.666666666666667,name:'john-leguizamo' },{ x: 3, y: 4.444444444444444,name:'frank-welker' },{ x: 3, y: 4.666666666666666,name:'brad-william-henke' },{ x: 6, y: 6.777777777777778,name:'jk-simmons' },{ x: 3, y: 7.4444444444444455,name:'nicolas-cage' },{ x: 3, y: 8.222222222222223,name:'stan-lee' },{ x: 4, y: 7.666666666666666,name:'taika-waititi' },{ x: 3, y: 8,name:'michael-cera' },{ x: 4, y: 7.833333333333333,name:'willem-dafoe' },{ x: 3, y: 8.555555555555557,name:'chris-evans' },{ x: 3, y: 7.888888888888889,name:'william-h-macy' },{ x: 3, y: 6.666666666666667,name:'greg-bronson' },{ x: 4, y: 6.75,name:'mark-ruffalo' },{ x: 3, y: 7.555555555555556,name:'chris-hemsworth' },{ x: 3, y: 7.444444444444444,name:'tessa-thompson' },{ x: 3, y: 7.111111111111112,name:'pom-klementieff' },{ x: 4, y: 6.083333333333333,name:'idris-elba' },{ x: 3, y: 5.222222222222222,name:'katie-holmes' },{ x: 3, y: 4.111111111111111,name:'m-night-shyamalan' },{ x: 3, y: 6.777777777777778,name:'robert-downey-jr' },{ x: 3, y: 6.333333333333333,name:'karl-urban' },{ x: 3, y: 5.777777777777778,name:'bruce-campbell' },{ x: 3, y: 5.888888888888889,name:'ted-raimi' },{ x: 3, y: 6.777777777777778,name:'benedict-wong' },{ x: 3, y: 5.666666666666667,name:'dee-bradley-baker' },{ x: 3, y: 5.777777777777778,name:'anthony-molinari' },{ x: 3, y: 2.3333333333333335,name:'steve-zahn' },{ x: 3, y: 3.4444444444444446,name:'adam-sandler' },{ x: 3, y: 7.777777777777778,name:'edward-norton' },{ x: 3, y: 7.111111111111112,name:'tim-dezarn' },{ x: 4, y: 6.833333333333334,name:'jake-gyllenhaal' },{ x: 3, y: 7.4444444444444455,name:'tom-holland-4' },{ x: 3, y: 7.4444444444444455,name:'marisa-tomei' },{ x: 3, y: 7.4444444444444455,name:'jon-favreau' },{ x: 3, y: 7.4444444444444455,name:'zendaya' },{ x: 3, y: 7.4444444444444455,name:'jacob-batalon' },{ x: 4, y: 7.75,name:'tony-revolori' },{ x: 3, y: 7.4444444444444455,name:'angourie-rice' },{ x: 3, y: 7.4444444444444455,name:'martin-starr' },{ x: 3, y: 5.777777777777779,name:'john-carroll-lynch' },{ x: 4, y: 7.583333333333333,name:'mary-elizabeth-winstead' },{ x: 3, y: 6.5555555555555545,name:'ewan-mcgregor' }]},                     {
+                           label: 'studio',
+                           data: [{ x: 3, y: 8.222222222222221,name:'miramax-1' },{ x: 3, y: 7.333333333333333,name:'scott-rudin-productions' },{ x: 8, y: 5.750000000000001,name:'20th-century-fox' },{ x: 3, y: 4,name:'dune-entertainment' },{ x: 10, y: 6,name:'columbia-pictures' },{ x: 3, y: 5.111111111111111,name:'sony-pictures' },{ x: 10, y: 5.6,name:'universal-pictures' },{ x: 4, y: 7.916666666666668,name:'pascal-pictures' },{ x: 5, y: 5.933333333333333,name:'lionsgate-1' },{ x: 4, y: 5.333333333333333,name:'new-line-cinema' },{ x: 5, y: 8.333333333333332,name:'focus-features' },{ x: 6, y: 7.277777777777778,name:'marvel-studios' },{ x: 12, y: 6,name:'warner-bros-pictures-1' },{ x: 3, y: 4.111111111111111,name:'blinding-edge-pictures' },{ x: 4, y: 5.416666666666667,name:'blumhouse-productions' },{ x: 8, y: 5.458333333333333,name:'paramount-1' },{ x: 4, y: 8.25,name:'film4-productions' },{ x: 4, y: 6.166666666666667,name:'working-title-films' },{ x: 3, y: 6.4444444444444455,name:'toho' },{ x: 3, y: 3,name:'happy-madison-productions-1' },{ x: 3, y: 6.4444444444444455,name:'touchstone-pictures' },{ x: 3, y: 4.555555555555555,name:'twisted-pictures' },{ x: 3, y: 8.555555555555555,name:'dentsu-2' },{ x: 3, y: 6.555555555555556,name:'dna-films' }]},                     {
+                           label: 'writer',
+                           data: [{ x: 4, y: 8,name:'quentin-tarantino' },{ x: 6, y: 7.777777777777776,name:'stan-lee' },{ x: 4, y: 7.916666666666668,name:'steve-ditko' },{ x: 3, y: 4.111111111111111,name:'m-night-shyamalan' },{ x: 3, y: 8.666666666666666,name:'edgar-wright' },{ x: 3, y: 7.4444444444444455,name:'chris-mckenna' },{ x: 3, y: 7.4444444444444455,name:'erik-sommers' },{ x: 3, y: 4.555555555555555,name:'james-wan' },{ x: 4, y: 5.416666666666666,name:'leigh-whannell' }]},                     {
+                           label: 'director',
+                           data: [{ x: 3, y: 7.888888888888888,name:'taika-waititi' },{ x: 3, y: 4.111111111111111,name:'m-night-shyamalan' },{ x: 3, y: 8.666666666666666,name:'edgar-wright' },{ x: 3, y: 7.4444444444444455,name:'jon-watts' }]}]},
+                 options: {
+                     plugins:{
+                          tooltip: {
+                              callbacks: {
+                                  label: (context) => {
+                                      return `${context.raw.name}: Rating:  ${String(context.raw.y).substring(0,4)} Frequency: ${context.raw.x}`;
+                                  }
+                              }
+                          }
+                     } 
+                 } 
+            });
+    });
+</script>

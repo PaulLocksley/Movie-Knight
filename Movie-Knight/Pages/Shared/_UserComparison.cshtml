@@ -129,8 +129,6 @@ function filter(type, role, name){
                     </td>
                 </tr>
                 <tr id="info-@movie.movieData.id" class="hidden-row">
-                    <!-- HX-SWAP 16 FUCKING MB-->
-                    
                 </tr>
             }
         }
@@ -143,14 +141,15 @@ function filter(type, role, name){
 
 
 <div id="graphView" class="tabcontent">
-    <div id="graphWrapper">
-        <canvas id="movieScoreGraph"></canvas>
-    </div>
+
     <div>
         <canvas id="scatterPlot"></canvas>
     </div>
     <div>
         <canvas id="genreRadar"></canvas>
+    </div>
+    <div id="graphWrapper">
+        <canvas id="movieScoreGraph"></canvas>
     </div>
     <style>
         #graphView {
@@ -198,7 +197,7 @@ function filter(type, role, name){
                     tooltip: {
                         callbacks: {
                             label: (context) => {
-                                return `${context.raw.name}: Rating: ${context.raw.y} Frequency: ${context.raw.x}`;
+                                return `${context.raw.name}: Rating:  ${String(context.raw.y).substring(0,4)} Frequency: ${context.raw.x}`;
                             }
                         }
                     }
