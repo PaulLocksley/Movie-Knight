@@ -193,6 +193,7 @@ function filter(type, role, name){
            type: 'scatter',
            data: @Html.Raw(Model.scatterPlotData.ToString()),
            options: {
+               maintainAspectRatio: false,
                plugins:{
                     tooltip: {
                         callbacks: {
