@@ -6,23 +6,24 @@
 
 
 
-
-
 <div class="container" id="entryFrom">
-    <form>
-        <h4>>Enter a comma seperated list of usernames to compare. (max 8) </h4>
-        <input type="text" pattern="[A-Za-z0-9,_\s]+" name="userNames"
-               placeholder="James-Holden, Naomi-Nagata, Tim, Alex-Kamal, Peaches, Gunny"/>
-        <button hx-get="UserComparison"
-                hx-include="[name='userNames']"
-                hx-target="#userAnalysis"
-                hx-indicator="#spinner"
-                hx-replace-url="true">
-            Load user comparison
-        </button>
-    </form>
+    <div class="hstack">
+        <form class="userInputForm">
+            <h4>>Enter a comma seperated list of usernames to compare. (max 8) </h4>
+            <input type="text" pattern="[A-Za-z0-9,_-\s]+" name="userNames"
+                   placeholder="James-Holden, Naomi-Nagata, Tim, Alex-Kamal, Peaches, Gunny"/>
+            <button hx-get="UserComparison"
+                    hx-include="[name='userNames']"
+                    hx-target="#userAnalysis"
+                    hx-indicator="#spinner"
+                    hx-replace-url="true">
+                Load user comparison
+            </button>
+        </form>
+        <button id="help" onclick="showHelp()"><p>?</p></button>
+        </div>
     <img id="spinner" class="htmx-indicator" src="/img/loading.svg" alt="Loading indicator"/>
-
+</div>
     <div id="userAnalysis">
         <h3>Welcome to Movie Knight</h3>
         <h4>Group analysis and recommendations for letterboxd users </h4>
@@ -57,22 +58,9 @@
         </div>
         <li>Find new movies the whole group will enjoy that nobody has seen</li>
         </ul>
-        <h3>Instructions:</h3>
-        <ol>
-            <li>For each user you would like to include navigate to their letterboxd profile and copy the system name 
-                from the address bar ie: <img src="img/UsernName.jpg" alt="A URL with the Path highlighted"/> </li>
-            <li>
-                Paste the above user names into the text field (With commas between users) at the top of the page.</li>
-            <li>Press load user comparison.</li>
-            <li>Optional: Open movie details and add filters to get more granular information ie:
-                <img src="img/filter-example.jpg" alt=""/> In the above image you can press Plus to only include movies with Wes Anderson as a director or Minus to remove all movies directed by Wes Anderson</li>
-        </ol>
+     
         <img src="img/Kenneth.webp" alt=""/>
     </div>
-
-
-</div>
-
 <script>
     window.addEventListener('load', function () {
             var stx = document.getElementById('scatterPlot');
@@ -103,4 +91,36 @@
                  } 
             });
     });
+</script>
+<dialog>
+    <div class="instruction-modal">
+        <h3>Instructions</h3>
+        <ol>
+            <li>For each user you would like to include navigate to their letterboxd profile and copy the system name
+                from the address bar ie:<br/> <img src="img/UsernName.jpg" alt="A URL with the Path highlighted"/> </li>
+            <li>
+                Paste the above user names into the text field (With commas between users) at the top of the page.</li>
+            <li>Press load user comparison.</li>
+            
+            
+            <li>Optional: Open movie details and add filters to get more granular information ie:<br/>
+                <img src="img/filter-example.jpg" alt=""/><br/> In the above image you can press plus to only include movies with Wes Anderson as a director or minus to remove all movies directed by Wes Anderson</li>
+        </ol>
+        <button autofocus>Close</button>
+    </div>
+</dialog>
+<script>
+const dialog = document.querySelector("dialog");
+const showButton = document.querySelector("dialog + button");
+const closeButton = document.querySelector("dialog button");
+
+// "Show the dialog" button opens the dialog modally
+function showHelp(){
+  dialog.showModal();
+}
+
+// "Close" button closes the dialog
+closeButton.addEventListener("click", () => {
+  dialog.close();
+});
 </script>
