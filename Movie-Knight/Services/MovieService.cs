@@ -83,10 +83,30 @@ public class MovieService
         {
             ratingCount = Int32.Parse(ratingsCountRx.Match(attrsMatch).Groups[1].ToString());
         }
-        catch (Exception e)
+        catch (Exception _)
         {
-            Console.WriteLine("Failed to find movie rating count");
-            ratingCount = 0;
+            try
+            {
+                Debug.WriteLine("Failed to find movie rating count attempting backup");
+                Regex backupRatingsCountsRx = new Regex("""title="(\d+)""");
+                var ratingHistogram = await _client.GetAsync($"csi/film/{url}/rating-histogram/");
+                if (!ratingHistogram.IsSuccessStatusCode)
+                {
+                    throw new Exception(ratingHistogram.ToString());
+                }
+                var ratingContent = await ratingHistogram.Content.ReadAsStringAsync();
+                ratingCount = backupRatingsCountsRx.Matches(ratingContent).Select(x => 
+                    Int32.Parse(x.Groups[1].ToString()))
+                    .Aggregate((x,y) => (x + y));
+                Debug.WriteLine($"Found rating number: {ratingCount}");
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine("Something really went wrong when attempting backup parsing");
+                Debug.WriteLine(e);
+                ratingCount = 0;
+            }
+
         }
         //attrs - Studio
         Regex studiosRx = new Regex(@"\/studio\/([^\/]+)");
