@@ -32,6 +32,7 @@ public class MovieService
         int id;
         int duration;
         double? averageRating;
+        int ratingCount;
         DateTime? releaseDate;
         string description;
 
@@ -77,6 +78,16 @@ public class MovieService
             averageRating = null;
         }
 
+        Regex ratingsCountRx = new Regex("\"ratingCount\":(\\d+),");
+        try
+        {
+            ratingCount = Int32.Parse(ratingsCountRx.Match(attrsMatch).Groups[1].ToString());
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("Failed to find movie rating count");
+            ratingCount = 0;
+        }
         //attrs - Studio
         Regex studiosRx = new Regex(@"\/studio\/([^\/]+)");
         var studios = studiosRx.Matches(attrsMatch);
@@ -124,7 +135,7 @@ public class MovieService
         var relateds = relatedRX.Matches(content);
         var relatedFilms = (relateds.Select(x => Int32.Parse(x.Groups[1].Value)).ToArray());
         
-        return new Movie(attributes, name, id, duration, averageRating, releaseDate, description,relatedFilms);
+        return new Movie(attributes, name, id, duration, averageRating, ratingCount, releaseDate, description,relatedFilms);
     }
 
 }
