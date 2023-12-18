@@ -30,11 +30,12 @@ public class UserComparison : PageModel
     public string[] rolesWeCareAbout = {"cast","studio","writer","director"};
     public string[][] displayFilterRolesWeCareAbout = { new [] {"cast"}, new [] {"studio","writer","director"} };
     public Dictionary<string, double> userDeltas = new();
-    public async Task<IActionResult> OnGet(string userNames, string? filterString)
+    public async Task<IActionResult> OnGet(string userNames, string? filterString, string? sortString)
     {
         var stopWatch = new Stopwatch();
         stopWatch.Start();
         Filter[]? filters = null;
+        var sortOrder = SortType.DiscordDesc;
         ComparisonUsers = new List<User>();
         var userService = new UserService(GetHttpClient.GetNamedHttpClient());
 
@@ -44,7 +45,11 @@ public class UserComparison : PageModel
         {
             filters = JsonSerializer.Deserialize<Filter[]>(filterString);
         }
-
+        if(sortString is not null)
+        {
+            sortOrder = Enum.Parse<SortType>(sortString);
+            Console.WriteLine(sortOrder);
+        }
         #region User Comparison
 
         try
@@ -137,7 +142,16 @@ public class UserComparison : PageModel
         
 
         //Final parsing.
-        SharedMovies = SharedMovies.OrderByDescending(m => m.Item3).ThenByDescending(m => m.Item2).ToList();
+        SharedMovies = sortOrder switch
+
+        {
+            SortType.Popularity => SharedMovies.OrderBy(m => m.movieData.RatingCount).ToList(),
+            SortType.PopularityDesc => SharedMovies.OrderByDescending(m => m.movieData.RatingCount).ToList(),
+            SortType.AverageRating =>  SharedMovies.OrderBy(m => m.mean).ToList(),
+            SortType.AverageRatingDesc => SharedMovies.OrderByDescending(m => m.mean).ToList(),
+            SortType.Discord => SharedMovies.OrderBy(m => m.delta).ToList(),
+            _ => SharedMovies.OrderByDescending(m => m.Item3).ThenByDescending(m => m.Item2).ToList()
+        };
         totalAverageDelta = SharedMovies.Select(x => x.delta).Sum() / (double)SharedMovies.Count;
         totalAverageRating = Convert.ToInt32(SharedMovies.Select(x => x.mean).Sum()) / SharedMovies.Count;
 
