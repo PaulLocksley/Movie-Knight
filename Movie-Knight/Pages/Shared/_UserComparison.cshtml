@@ -3,7 +3,9 @@
 @using System.Net.Mime
 @using System.Text
 @using Microsoft.AspNetCore.Mvc.ApiExplorer
+@using Microsoft.AspNetCore.WebUtilities
 @using Microsoft.Extensions.Primitives
+@using Movie_Knight.Models
 @model Movie_Knight.Pages.UserComparison
 @{ ArgumentNullException.ThrowIfNull(Model); }
 <script>
@@ -84,6 +86,24 @@ function filter(type, role, name){
 }
 
 </script>
+<ul>
+@foreach (var viewSortType in Enum.GetValues(typeof(SortType)).Cast<SortType>())
+{
+    var sb = new StringBuilder();
+    sb.Append("<li  hx-get='");
+    sb.Append(Context.Request.Scheme);
+    sb.Append("://");
+    sb.Append(Context.Request.Host.Value);
+    sb.Append(Context.Request.Path.Value);
+    sb.Append("?");
+    sb.Append(Context.Request.Query.Where(x => x.Key != "sortString")
+        .Aggregate("", (x, y) => ($"{x}{y.Key}={y.Value}&")));
+    sb.Append($"sortString={viewSortType}");
+    sb.Append($"' hx-target=\"#userAnalysis\"> {viewSortType} </li>");
+    @Html.Raw(sb.ToString());
+
+}
+</ul>
 
 <div class="tab container">
     <button class="tablinks" id="defaultOpen" onclick="openTab(event, 'tableView')">Table</button>
