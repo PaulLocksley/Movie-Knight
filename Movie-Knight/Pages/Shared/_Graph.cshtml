@@ -1,0 +1,91 @@
+@page "/_Graph"
+@model Movie_Knight.Pages.Shared._Graph
+
+@{
+    Layout = null;
+}
+
+
+
+    <div>
+        <canvas id="scatterPlot"></canvas>
+    </div>
+    <div>
+        <canvas id="genreRadar"></canvas>
+    </div>
+    <div id="graphWrapper">
+        <canvas id="movieScoreGraph"></canvas>
+    </div>
+    <style>
+        #scatterPlot{
+            height: 500px;
+        }
+        #graphView {
+          max-width: 100%;
+        }
+        #graphWrapper {
+          overflow-x: auto;
+          width: @(Model.SharedMovies.Count * 60)px;
+          height: 500px
+        }
+        #graphWrapper > canvas {
+              width: @(Model.SharedMovies.Count * 60)px;
+        }
+        #movieScoreGraph {
+          overflow-x: auto;
+        }
+    </style>
+<script>
+      var ctx = document.getElementById('movieScoreGraph');
+    
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          @Html.Raw(Model.barGraphData.ToString())
+        },
+        options: {
+         responsive: true,
+         plugins: {
+           legend: {
+             position: 'top',
+           },
+           title: {
+             display: true,
+             text: '20 Most Divisive Films'
+           }
+         }
+       }
+      });
+      var stx = document.getElementById('scatterPlot');
+      new Chart(stx, {
+           type: 'scatter',
+           data: @Html.Raw(Model.scatterPlotData.ToString()),
+           options: {
+               maintainAspectRatio: false,
+               plugins:{
+                    tooltip: {
+                        callbacks: {
+                            label: (context) => {
+                                return `${context.raw.name}: Rating:  ${String(context.raw.y).substring(0,4)} Frequency: ${context.raw.x}`;
+                            }
+                        }
+                    }
+               } 
+           } 
+      });
+      
+    var rtx = document.getElementById('genreRadar');
+    new Chart(rtx, {
+         type: 'radar',
+         data: @Html.Raw(Model.radarPlotData.ToString()),
+         options: {
+             scale: {
+                 max: 10,
+                 min: 0,
+           
+             }
+
+         } 
+         }
+    );
+    </script>
