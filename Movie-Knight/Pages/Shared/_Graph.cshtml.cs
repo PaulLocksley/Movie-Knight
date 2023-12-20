@@ -3,21 +3,15 @@ using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using Htmx;
-using Microsoft.AspNetCore.Authorization.Infrastructure;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.Primitives;
 using Movie_Knight.Controllers;
 using Movie_Knight.Models;
-using Movie_Knight.Pages.Shared;
 using Movie_Knight.Services;
-using HostingEnvironmentExtensions = Microsoft.AspNetCore.Hosting.HostingEnvironmentExtensions;
 
-namespace Movie_Knight.Pages;
+namespace Movie_Knight.Pages.Shared;
 
-public class UserComparison : PageModel
+public class _Graph : PageModel
 {
     public List<User> ComparisonUsers;
     public List<(Movie movieData,double mean,int delta)> SharedMovies;
@@ -31,7 +25,8 @@ public class UserComparison : PageModel
     public string[][] displayFilterRolesWeCareAbout = { new [] {"cast"}, new [] {"studio","writer","director"} };
     public SortType sortOrder = SortType.DiscordDesc;
     public Dictionary<string, double> userDeltas = new();
-    public async Task<IActionResult> OnGet(string userNames, string? filterString, string? sortString)
+    
+    public async Task<IActionResult> OnGet(string userNames, string? filterString)
     {
         var stopWatch = new Stopwatch();
         stopWatch.Start();
@@ -45,11 +40,7 @@ public class UserComparison : PageModel
         {
             filters = JsonSerializer.Deserialize<Filter[]>(filterString);
         }
-        if(sortString is not null)
-        {
-            sortOrder = Enum.Parse<SortType>(sortString);
-            Console.WriteLine(sortOrder);
-        }
+
         #region User Comparison
 
         try
@@ -142,16 +133,7 @@ public class UserComparison : PageModel
         
 
         //Final parsing.
-        SharedMovies = sortOrder switch
-
-        {
-            SortType.Popularity => SharedMovies.OrderBy(m => m.movieData.RatingCount).ToList(),
-            SortType.PopularityDesc => SharedMovies.OrderByDescending(m => m.movieData.RatingCount).ToList(),
-            SortType.AverageRating =>  SharedMovies.OrderBy(m => m.mean).ToList(),
-            SortType.AverageRatingDesc => SharedMovies.OrderByDescending(m => m.mean).ToList(),
-            SortType.Discord => SharedMovies.OrderBy(m => m.delta).ToList(),
-            _ => SharedMovies.OrderByDescending(m => m.Item3).ThenByDescending(m => m.Item2).ToList()
-        };
+        SharedMovies =  SharedMovies.OrderByDescending(m => m.Item3).ThenByDescending(m => m.Item2).ToList();
         totalAverageDelta = SharedMovies.Select(x => x.delta).Sum() / (double)SharedMovies.Count;
         totalAverageRating = Convert.ToInt32(SharedMovies.Select(x => x.mean).Sum()) / SharedMovies.Count;
 
@@ -176,47 +158,127 @@ public class UserComparison : PageModel
         stopWatch.Reset();
         stopWatch.Start();
         
-        
-        stopWatch.Reset();
-        stopWatch.Start();
-        #region recomendations
-        var watchedMovies = ComparisonUsers.Select(x => x.userList.Keys)
-            .Aggregate(new HashSet<int>(), (x, y) =>
-            {
-                foreach (var i in y)
-                {
-                    x.Add(i);
-                }
+        #region graphing section
 
-                return x;
-            });
-        var recomendationCounts = new Dictionary<int, int>();
-        var rc = SharedMovies.Where(x => x.mean > 8)
-            .Select(x => x.movieData.relatedFilms).Aggregate(new List<int>(), (o, t) =>
-            {
-                o.AddRange(t);
-                return o;
-            });
-        foreach (var movieRec in rc.Where(x => !watchedMovies.Contains(x)))
+        var barGraphTempData = SharedMovies.OrderByDescending(x => x.delta).Chunk(20).First();
+        
+        barGraphData.Append($$"""
+            labels: [{{barGraphTempData
+                .Select(x => $""" "{x.movieData.name}" """).Aggregate((x,y) => 
+                x +"," + y)}}],
+            datasets: [
+            """);
+        foreach (var user in ComparisonUsers)
         {
-            if (recomendationCounts.ContainsKey(movieRec)) {
-                recomendationCounts[movieRec]++;
-            } else {
-                recomendationCounts[movieRec] = 1;
+            barGraphData.Append($$"""
+                                   {
+                                   label: '{{user.username}}',
+                                   data: [{{
+                                       barGraphTempData.Select(x => user.userList[x.movieData.id])
+                                           .Aggregate("",(x,y) => $"{x},{y}")[1..]
+                                       
+                                   }}]
+                                   },
+                                   """);
+        }
+        barGraphData.Append($$"""
+                               {
+                               label: 'Group average',
+                               data: [{{
+                                   barGraphTempData.Select(x => x.mean)
+                                       .Aggregate("",(x,y) => $"{x},{y}")[1..]
+                                   }}]
+                               },{
+                               label: 'All User Average',
+                               data: [{{
+                                   barGraphTempData.Select(x => (x.movieData.averageRating))
+                                       .Aggregate("",(x,y) => $"{x},{y}")[1..]
+
+                                   }}]
+                               }
+                               """);
+
+        barGraphData.Append("]");
+
+        var personData = new Dictionary<(string role, string name), (int frequency, double score)>();
+        foreach (var movie in SharedMovies)
+        {
+            foreach ((string role, string name)person in movie.movieData.attributes
+                         .Where(x => rolesWeCareAbout.Contains(x.role)))
+            {
+                if (personData.ContainsKey(person))
+                {
+                    personData[person] = (personData[person].frequency+1,
+                        personData[person].score + movie.mean);
+                }
+                else
+                {
+                    personData[person] = (1,
+                        movie.mean);
+                }
             }
         }
+        foreach (var person in personData.Keys)
+        {
+            personData[person] = (personData[person].frequency,
+                personData[person].score / personData[person].frequency);
+        }
+        //put above data into table
+        scatterPlotData.Append($$"""
+                                 {
+                                 labels: [{{rolesWeCareAbout.Select(x=>$"'{x}'").Aggregate((x,y)=>x+","+y)}}],
+                                 datasets:[
+                                 
+                                 """);
+        foreach (var role in rolesWeCareAbout)
+        {
+            var tempItems = personData
+                .Where(p => p.Key.role == role && p.Value.frequency > 2);
+                
+            scatterPlotData.Append($$"""
+                                                          {
+                                                          label: '{{role}}',
+                                                          data: [
+                                     """);
+            if (tempItems.Any())
+                scatterPlotData.Append(tempItems.Select(x => $$"""
+                                                               { x: {{x.Value.frequency}}, y: {{x.Value.score}},name:'{{x.Key.name}}' }
+                                                               """).Aggregate((x, y) => (x + "," + y)));
+            scatterPlotData.Append("]},");
+        }
+
+        scatterPlotData.Remove(scatterPlotData.Length - 1, 1);
+        scatterPlotData.Append("]}");
+        var dictscores = new Dictionary<string, (int count, double sum)>();
+        foreach (var m in SharedMovies.Where(m => m.movieData.averageRating.HasValue))
+        {
+            foreach (var genre in m.movieData.attributes.Where(x => x.role == "genre"))
+            {
+                if (dictscores.ContainsKey(genre.name))
+                {
+                    dictscores[genre.name] = (dictscores[genre.name].count + 1,
+                        dictscores[genre.name].sum + m.movieData.averageRating!.Value);
+                }
+                else
+                {
+                    dictscores[genre.name] = (1, m.movieData.averageRating!.Value);
+                }
+            }
+        }
+        radarPlotData.Append($$"""
+                               {
+                               labels: [{{dictscores.Select(x=>$"'{x.Key}'").Aggregate((x,y)=>x+","+y)}}],
+                               datasets:[{
+                               label: 'Shared genrescoress',
+                               data: [{{dictscores.Select(x => ""+x.Value.sum/x.Value.count)
+                                   .Aggregate((x,y) => x+","+y)}}
+                                   ]}]
+                                   }
+                               """);
         
-        foreach (var movieRec in recomendationCounts.Where(x => x.Value > 1)
-                     .OrderByDescending(x => x.Value))
-        {
-            movieRecs.Add(MovieCache.GetMovie(movieRec.Key));
-        }
+        
         #endregion
-        Console.WriteLine($"Recs took: {stopWatch.ElapsedMilliseconds}");
-        if (!Request.IsHtmx())
-        {
-            return Page();
-        }
-        return Partial("_UserComparison", this);
+        Console.WriteLine($"Graphing took: {stopWatch.ElapsedMilliseconds}");
+        return Page();
     }
 }
