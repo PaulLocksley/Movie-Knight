@@ -121,8 +121,7 @@ function filter(type, role, name){
                                     {
                                         var sb = new StringBuilder();
                                         sb.Append("<div class=\"dropdown-link\"   hx-get='");
-                                        sb.Append(Context.Request.Scheme);
-                                        sb.Append("://");
+                                        sb.Append("https://");
                                         sb.Append(Context.Request.Host.Value);
                                         sb.Append(Context.Request.Path.Value);
                                         sb.Append("?");
