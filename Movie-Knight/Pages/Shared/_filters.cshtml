@@ -4,9 +4,12 @@
 
 <tr id="info-@Model.movie.id" class="hidden-row" style="display: contents;">
     <td colspan="2">
+        <h6> Average Rating: @Model.movie.averageRating </h6>
+        <h6> Total Ratings: @Model.movie.RatingCount</h6>
         <div style="width: 400px"><h6>Description:</h6>
-            <p> @Model.movie.description </p>
+            <p> @Html.Raw(Model.movie.description) </p>
         </div>
+        
     </td>
     @foreach (var role in Model.displayFilterRolesWeCareAbout)
     {

@@ -1,4 +1,5 @@
 ﻿@page
+@using Microsoft.AspNetCore.Mvc.TagHelpers
 @model Movie_Knight.Pages.IndexModel
 @{
     ViewData["Title"] = "User Comparison";
@@ -10,7 +11,7 @@
     <div class="hstack">
         <form class="userInputForm">
             <h4>>Enter a comma seperated list of usernames to compare. (max 8) </h4>
-            <input type="text" pattern="[A-Za-z0-9,_-\s]+" name="userNames"
+            <input type="text" pattern="[A-Za-z0-9,_\-\s]+" name="userNames"
                    placeholder="James-Holden, Naomi-Nagata, Tim, Alex-Kamal, Peaches, Gunny"/>
             <button hx-get="UserComparison"
                     hx-include="[name='userNames']"
