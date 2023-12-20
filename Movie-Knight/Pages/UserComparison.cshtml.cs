@@ -29,13 +29,13 @@ public class UserComparison : PageModel
     public List<Movie> movieRecs = new();
     public string[] rolesWeCareAbout = {"cast","studio","writer","director"};
     public string[][] displayFilterRolesWeCareAbout = { new [] {"cast"}, new [] {"studio","writer","director"} };
+    public SortType sortOrder = SortType.DiscordDesc;
     public Dictionary<string, double> userDeltas = new();
     public async Task<IActionResult> OnGet(string userNames, string? filterString, string? sortString)
     {
         var stopWatch = new Stopwatch();
         stopWatch.Start();
         Filter[]? filters = null;
-        var sortOrder = SortType.DiscordDesc;
         ComparisonUsers = new List<User>();
         var userService = new UserService(GetHttpClient.GetNamedHttpClient());
 

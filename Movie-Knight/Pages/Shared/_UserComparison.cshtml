@@ -86,25 +86,6 @@ function filter(type, role, name){
 }
 
 </script>
-<ul>
-@foreach (var viewSortType in Enum.GetValues(typeof(SortType)).Cast<SortType>())
-{
-    var sb = new StringBuilder();
-    sb.Append("<li  hx-get='");
-    sb.Append(Context.Request.Scheme);
-    sb.Append("://");
-    sb.Append(Context.Request.Host.Value);
-    sb.Append(Context.Request.Path.Value);
-    sb.Append("?");
-    sb.Append(Context.Request.Query.Where(x => x.Key != "sortString")
-        .Aggregate("", (x, y) => ($"{x}{y.Key}={y.Value}&")));
-    sb.Append($"sortString={viewSortType}");
-    sb.Append($"' hx-target=\"#userAnalysis\"> {viewSortType} </li>");
-    @Html.Raw(sb.ToString());
-
-}
-</ul>
-
 <div class="tab container">
     <button class="tablinks" id="defaultOpen" onclick="openTab(event, 'tableView')">Table</button>
     <button class="tablinks" onclick="openTab(event, 'graphView')">Graphs</button>
@@ -113,6 +94,9 @@ function filter(type, role, name){
 <div id="tableView" class="tabcontent">
     @if (Model.SharedMovies is {} movies)
     {
+        
+        
+
         <table>
         @if (Model.ComparisonUsers is {} users)
         {
@@ -124,9 +108,33 @@ function filter(type, role, name){
                     <th>@user.username <br/> Δx̄ @Model.userDeltas[user.username]</th>
                 }
                 <th>Group Average Rating</th>
-                <th>Total Delta to Average <br/> x̄ @(Model.SharedMovies.Sum(x => x.delta)
-                                                        /Model.SharedMovies.Count)</th>
-                <th></th>
+                <th>Total Delta to Average <br/> x̄ @((Model.SharedMovies.Sum(x => x.delta)
+                                                      /Model.SharedMovies.Count).ToString())</th>
+                @if (Model.sortOrder == SortType.Popularity || Model.sortOrder == SortType.PopularityDesc)
+                {
+                    <th># of ratings</th>
+                }
+                <th><div class="dropdown">
+                                <button class="dropbtn"><img src="img\sort.svg" alt="Sort" width="36px"/></button>
+                                <div class="dropdown-content">
+                                    @foreach (var viewSortType in Enum.GetValues(typeof(SortType)).Cast<SortType>())
+                                    {
+                                        var sb = new StringBuilder();
+                                        sb.Append("<div class=\"dropdown-link\"   hx-get='");
+                                        sb.Append(Context.Request.Scheme);
+                                        sb.Append("://");
+                                        sb.Append(Context.Request.Host.Value);
+                                        sb.Append(Context.Request.Path.Value);
+                                        sb.Append("?");
+                                        sb.Append(Context.Request.Query.Where(x => x.Key != "sortString")
+                                            .Aggregate("", (x, y) => ($"{x}{y.Key}={y.Value}&")));
+                                        sb.Append($"sortString={viewSortType}");
+                                        sb.Append($"' hx-target=\"#userAnalysis\"> {viewSortType} </div>");
+                                        @Html.Raw(sb.ToString());
+                    
+                                    }
+                                </div>
+                            </div></th>
             </tr>
             @foreach (var movie in movies)
             {
@@ -140,10 +148,14 @@ function filter(type, role, name){
 
                     @foreach (var user in users)
                     {
-                        <td>@user.userList[movie.Item1.id]</td>
+                        <td>@user.userList[movie.Item1.id].ToString()</td>//todo: Work out this rider error, something about boxing. I don't even fight tho.
                     }
                     <td>@Math.Round(movie.Item2,2)</td>
                     <td>@movie.Item3</td>
+                    @if (Model.sortOrder == SortType.Popularity || Model.sortOrder == SortType.PopularityDesc)
+                                    {
+                                        <td>@movie.movieData.RatingCount.ToString()</td>
+                                    }
                     <td >
                         <img src="img/expand_more.svg" id="img-info-@movie.movieData.id" alt="Expand"/>
                     </td>

@@ -194,3 +194,48 @@ input:invalid {
   padding: 40px;
   overflow-y: scroll;
 }
+
+.dropbtn {
+  background-color: var(--primary);
+  color: white;
+  padding: 8px;
+  font-size: 16px;
+  border: none;
+  margin:0;
+
+
+}
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: var(--primary);
+  left: -158px; <!-- todo: Work out CSS to reactivly get this properly -->
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  border-radius: 20px 0 20px 20px;
+  z-index: 1;
+}
+
+.dropdown-link {
+  color: white;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+  border-radius: 20px;
+}
+
+.dropdown-link:hover {
+  background-color: dodgerblue;
+}
+
+.dropdown:hover .dropdown-content {display: block;}
+
+.dropdown:hover .dropbtn {background-color: dodgerblue;
+  border-radius: 5px 5px 0 0;
+}
