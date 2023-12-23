@@ -87,7 +87,11 @@ public class UserComparison : PageModel
                         userList,
                         null));
                 Console.WriteLine($"UserList length {userList.Count} sharedCount = {sharedList.Count}");
-            }
+                if(sharedList.Count == 0)
+                {
+                    return Partial("_NoSharedMovies");
+                }
+        }
 
             //Delta calculations.
             IDictionary<int, double> averageRatings = new ConcurrentDictionary<int, double>();
