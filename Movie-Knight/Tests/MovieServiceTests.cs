@@ -24,5 +24,6 @@ public class MovieServiceTests
         Assert.Equal(movie.attributes, parsedMovie.attributes);
         Assert.Equal(movie.name, parsedMovie.name);
         Assert.Equal(movie.duration, parsedMovie.duration);
+        Assert.Equal(true, false);
     }    
 }
