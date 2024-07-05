@@ -46,20 +46,26 @@ public class UserService
         if(pageNumber==0)
         {
             Regex pageMatch = new Regex(@"films\/page\/(\d+)\/.>\d+<\/a><\/li> <\/ul> <\/div> <\/div>");
-            var pageCount = int.Parse(pageMatch.Match(content).Groups[1].Value);
-            var po = new ParallelOptions { MaxDegreeOfParallelism = 15 };
-            Parallel.For(2, pageCount + 1,po, async i =>
+            var foundPage = int.TryParse(pageMatch.Match(content).Groups[1].Value,out var pageCount);
+            if (foundPage)
             {
-                var movieListTask = _fetchUser(username, i);
-                while (!movieListTask.IsCompleted) { Thread.Sleep(100);
-                } //for some reason awaiting above doesn't work but this does?????
-
-                foreach (var m in movieListTask.Result)
+                var po = new ParallelOptions { MaxDegreeOfParallelism = 15 };
+                Parallel.For(2, pageCount + 1, po, async i =>
                 {
-                    movieList[m.Key] = m.Value;
-                }; //(movieListTask.Result);
-            });
+                    var movieListTask = _fetchUser(username, i);
+                    while (!movieListTask.IsCompleted)
+                    {
+                        Thread.Sleep(100);
+                    } //for some reason awaiting above doesn't work but this does?????
 
+                    foreach (var m in movieListTask.Result)
+                    {
+                        movieList[m.Key] = m.Value;
+                    }
+
+                    ; //(movieListTask.Result);
+                });
+            }
         }
         return movieList;
     }
