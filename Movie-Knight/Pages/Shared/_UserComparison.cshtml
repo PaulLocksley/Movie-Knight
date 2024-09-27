@@ -10,6 +10,8 @@
 @{ ArgumentNullException.ThrowIfNull(Model); }
 <script>
 var graphsLoaded = false;
+var watchListLoaded = false;
+
 
 function openTab(evt, viewName) {
   // Declare all variables
@@ -18,6 +20,11 @@ function openTab(evt, viewName) {
        htmx.ajax('GET', '/_Graph?'+ new URLSearchParams(window.location.search), 
                 {target:'#graphView', swap:'innerHTML'})
       graphsLoaded = true
+  }
+  if (!watchListLoaded && viewName === "watchListView"){
+    htmx.ajax('GET','/_WatchList?'+ new URLSearchParams(window.location.search),
+        {target:'#watchListView',swap:'innerHTML'})
+    watchListLoaded = true
   }
   // Get all elements with class="tabcontent" and hide them
   tabcontent = document.getElementsByClassName("tabcontent");
@@ -95,6 +102,7 @@ function filter(type, role, name){
 <div class="tab container">
     <button class="tablinks" id="defaultOpen" onclick="openTab(event, 'tableView')">Table</button>
     <button class="tablinks" onclick="openTab(event, 'graphView')">Graphs</button>
+    <button class="tablinks" onclick="openTab(event, 'watchListView')">Watch List</button>
     <button class="tablinks" onclick="openTab(event, 'recommendationsView')">Recommendations</button>
 </div>
 <div id="tableView" class="tabcontent">
@@ -205,6 +213,9 @@ function filter(type, role, name){
 </div>
 
 
+<div id="watchListView" class="tabcontent">
+    
+</div>
 
 
 
