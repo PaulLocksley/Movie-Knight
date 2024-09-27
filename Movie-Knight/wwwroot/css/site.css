@@ -21,7 +21,10 @@ body {
   margin-bottom: 60px;
 }
 
-
+.htmx-indicator {
+  position: absolute;
+  right: 50%;
+}
 /*tab view stuff from  https://www.w3schools.com/howto/howto_js_tabs.asp */
 .tab {
   overflow: hidden;
@@ -30,7 +33,7 @@ body {
   background-color: #4cc9F0;
 }
 .tablinks {
-  width: 33.33%;
+  width: 25%;
   margin: 0;
   color: #f72585;
   font-weight: bolder;

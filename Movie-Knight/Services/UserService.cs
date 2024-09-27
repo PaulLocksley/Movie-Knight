@@ -25,6 +25,9 @@ public class UserService
 
     public async Task<IList<int>> FetchWatchList(string username, int pageNumber=1)
     {
+        var tmp = UserCache.TryGetUserWatchListCache(username);
+        if(tmp is not null) return tmp;
+        
         var movieList = new ConcurrentBag<int>();
         var userUrl = $"{username}/watchlist/page/{pageNumber}";
         var response = await _httpClient.GetAsync(userUrl);
@@ -63,6 +66,7 @@ public class UserService
                 });
             }
         }
+        UserCache.InsertWatchListUser(username,movieList.ToList());
         return movieList.ToList();
     }
     
