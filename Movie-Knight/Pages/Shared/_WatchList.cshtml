@@ -1,0 +1,11 @@
+@page "/_WatchList"
+@model Movie_Knight.Pages.Shared._WatchList
+
+@{
+    Layout = null;
+}
+
+@foreach (var movie in Model.Movies)
+{
+    <p>@movie.name</p>
+}
