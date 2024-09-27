@@ -242,3 +242,7 @@ input:invalid {
 .dropdown:hover .dropbtn {background-color: dodgerblue;
   border-radius: 5px 5px 0 0;
 }
+
+.watchListTable {
+  margin-top: 60px;
+}
