@@ -14,7 +14,7 @@ public class MovieService
         Console.WriteLine("Starting new Movie Service!");
     }
     
-    public async Task<Movie> FetchMovie(string url)
+    public async Task<Movie> FetchMovie(string url, int id)
     {
         var movieUrl = ("film/" + url);
 
@@ -29,7 +29,6 @@ public class MovieService
 
         IList<(string role, string name)> attributes = new List<(string role, string name)>();
         string name;
-        int id;
         int duration;
         double? averageRating;
         int ratingCount;
@@ -37,19 +36,14 @@ public class MovieService
         string description;
 
         //var filmData = { id: 251943, name: "Spider-Man: Into the Spider-Verse", gwiId: 301363, releaseYear: "2018", posterURL: "/film/spider-man-into-the-spider-verse/image-150/", path: "/film/spider-man-into-the-spider-verse/", runTime: 117 };
-        Regex movieDataRX = new Regex(@"var filmData = {([^\}]+)");
-        var movieDataMatch = movieDataRX.Match(content).Groups[1].Value;
-        //name
-        Regex nameDataRX = new Regex(@"path: .\/film\/([^\/]+)");
+        Regex nameDataRX = new Regex(@"\/film\/([^\/]+)\/rating-histogram");
         name = nameDataRX.Match(content).Groups[1].Value;
         //id
-        Regex idDataRX = new Regex(@"id: (\d+)");
-        id = int.Parse(idDataRX.Match(content).Groups[1].Value);
         //duration
-        Regex durationDataRX = new Regex("""runTime: (\d+)""");
+        Regex durationDataRX = new Regex("""(\d+)&nbsp;mins""");
         duration = int.Parse(durationDataRX.Match(content).Groups[1].Value);
         //release date section
-        Regex releaseYearRx = new Regex("""releaseYear: "(\d+)""");
+        Regex releaseYearRx = new Regex(@"\/films\/year\/(\d+)");
         var releaseYear = releaseYearRx.Match(content).Groups[1].Value;
         if (int.TryParse(releaseYear, out var releaseYearInt) && releaseYearInt > 1880 && releaseYearInt < 2200)
         {
