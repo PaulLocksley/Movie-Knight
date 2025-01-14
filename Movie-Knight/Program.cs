@@ -1,6 +1,7 @@
 
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Movie_Knight.Models;
+using Prometheus;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddHttpClient("RequestClient", x =>
@@ -16,6 +17,10 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddRazorPages();
+builder.Services.AddMetricServer(options =>
+{
+    options.Port = 4010;
+});
 
 var app = builder.Build();
 
@@ -32,6 +37,7 @@ app.UseHttpsRedirection();
 
 app.UseStaticFiles();
 app.UseRouting();
+app.UseHttpMetrics();
 app.MapRazorPages();
 app.UseAuthorization();
 
