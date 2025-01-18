@@ -1,3 +1,5 @@
+using Movie_Knight.Models;
+
 namespace Movie_Knight.Services;
 using System.Text.RegularExpressions;
 using System.Collections.Concurrent;
@@ -21,6 +23,54 @@ public class UserService
         return p;
     }
 
+    public async Task<IList<int>> FetchWatchList(string username, int pageNumber=1)
+    {
+        var tmp = UserCache.TryGetUserWatchListCache(username);
+        if(tmp is not null) return tmp;
+        
+        var movieList = new ConcurrentBag<int>();
+        var userUrl = $"{username}/watchlist/page/{pageNumber}";
+        var response = await _httpClient.GetAsync(userUrl);
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new HttpRequestException($"Failed to fetch watch list for user {username}");
+        }
+        var content = await response.Content.ReadAsStringAsync();
+        Regex filmsRx = new Regex(@"film-poster-(\d+)");
+        var filmsMatch = filmsRx.Matches(content);
+        
+        foreach (Match filmMatch in filmsMatch)
+        {
+            movieList.Add(int.Parse(filmMatch.Groups[1].Value));
+        }
+        
+        if(pageNumber==0)
+        {
+            Regex pageMatch = new Regex(@"watchlist\/page\/(\d+)\/.>\d+<\/a><\/li> <\/ul> <\/div> <\/div>");
+            var foundPage = int.TryParse(pageMatch.Match(content).Groups[1].Value,out var pageCount);
+            if (foundPage)
+            {
+                var po = new ParallelOptions { MaxDegreeOfParallelism = 15 };
+                Parallel.For(2, pageCount + 1, po, async i =>
+                {
+                    var movieListTask = FetchWatchList(username, i);
+                    while (!movieListTask.IsCompleted)
+                    {
+                        Thread.Sleep(100);
+                    }
+
+                    foreach (var movie in movieListTask.Result)
+                    {
+                        movieList.Add(movie);
+                    }
+                });
+            }
+        }
+        UserCache.InsertWatchListUser(username,movieList.ToList());
+        return movieList.ToList();
+    }
+    
+    
     private async Task<IDictionary<int, int>> _fetchUser(string username, int pageNumber=0)
     {
         var userUrl = ( username +"/films/");
@@ -46,20 +96,26 @@ public class UserService
         if(pageNumber==0)
         {
             Regex pageMatch = new Regex(@"films\/page\/(\d+)\/.>\d+<\/a><\/li> <\/ul> <\/div> <\/div>");
-            var pageCount = int.Parse(pageMatch.Match(content).Groups[1].Value);
-            var po = new ParallelOptions { MaxDegreeOfParallelism = 15 };
-            Parallel.For(2, pageCount + 1,po, async i =>
+            var foundPage = int.TryParse(pageMatch.Match(content).Groups[1].Value,out var pageCount);
+            if (foundPage)
             {
-                var movieListTask = _fetchUser(username, i);
-                while (!movieListTask.IsCompleted) { Thread.Sleep(100);
-                } //for some reason awaiting above doesn't work but this does?????
-
-                foreach (var m in movieListTask.Result)
+                var po = new ParallelOptions { MaxDegreeOfParallelism = 15 };
+                Parallel.For(2, pageCount + 1, po, async i =>
                 {
-                    movieList[m.Key] = m.Value;
-                }; //(movieListTask.Result);
-            });
+                    var movieListTask = _fetchUser(username, i);
+                    while (!movieListTask.IsCompleted)
+                    {
+                        Thread.Sleep(100);
+                    } //for some reason awaiting above doesn't work but this does?????
 
+                    foreach (var m in movieListTask.Result)
+                    {
+                        movieList[m.Key] = m.Value;
+                    }
+
+                    ; //(movieListTask.Result);
+                });
+            }
         }
         return movieList;
     }

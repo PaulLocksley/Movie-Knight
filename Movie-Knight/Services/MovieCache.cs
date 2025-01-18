@@ -48,7 +48,7 @@ public static class MovieCache
         if(!_cache.TryGetValue(id,out var returnMovie))
         {
             //Console.WriteLine(e);
-            var movie = _movieService.FetchMovie("film:" + id);
+            var movie = _movieService.FetchMovie("film:" + id, id);
             while(!movie.IsCompleted){ Thread.Sleep(10); }
 
             if (movie.IsFaulted)

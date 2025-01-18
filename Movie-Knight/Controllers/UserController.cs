@@ -30,7 +30,6 @@ public class UserController
         var userService = new UserService(_httpClientFactory.CreateClient("RequestClient"));
         var movieList = await userService.FetchUser(username);
         var s = Stopwatch.StartNew();
-
         var MovieDict = new ConcurrentDictionary<int, Movie>();
         /*if (getMovies)
         {
