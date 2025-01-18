@@ -1,21 +1,15 @@
-
-
-@using System.Net.Mime
 @using System.Text
-@using Microsoft.AspNetCore.Mvc.ApiExplorer
-@using Microsoft.AspNetCore.WebUtilities
-@using Microsoft.Extensions.Primitives
 @using Movie_Knight.Models
 @model Movie_Knight.Pages.UserComparison
 @{ ArgumentNullException.ThrowIfNull(Model); }
 <script>
-var graphsLoaded = false;
-var watchListLoaded = false;
+    let graphsLoaded = false;
+    let watchListLoaded = false;
 
 
-function openTab(evt, viewName) {
+    function openTab(evt, viewName) {
   // Declare all variables
-  var i, tabcontent, tablinks;
+  let i, tabcontent, tablinks;
   if (!graphsLoaded && viewName === "graphView"){
        htmx.ajax('GET', '/_Graph?'+ new URLSearchParams(window.location.search), 
                 {target:'#graphView', swap:'innerHTML'})
@@ -72,31 +66,6 @@ function showHidenRow(rowId) {
     
 } 
 
-function filter(type, role, name){
-    const params =  new Proxy(new URLSearchParams(window.location.search), {
-                     get: (searchParams, prop) => searchParams.get(prop),
-                   });
-    let filterString = params.filterString;
-    if(filterString === null){
-        filterString = []
-    }else{
-        filterString = JSON.parse(filterString);    
-    }
-    filterString.push({"type":type,"role":role,"name":name})
-    let users = params.userNames;
-    console.log(type, role,name ,users ,filterString )
-
-    htmx.ajax('GET', '/UserComparison?userNames='+users+'&filterString='+JSON.stringify(filterString), 
-            {target:'#userAnalysis', swap:'innerHTML'}).then(() => {
-         // this code will be executed after the 'htmx:afterOnLoad' event,
-         // and before the 'htmx:xhr:loadend' event
-         var url = window.location.protocol + "//" + window.location.host + window.location.pathname + '?userNames='+users+'&filterString='+JSON.stringify(filterString);
-         window.history.pushState({path:url},'',url);
-
-         console.log('Content inserted successfully!');
-       });
-
-}
 
 </script>
 <div class="tab container">
@@ -119,12 +88,12 @@ function filter(type, role, name){
                 <th>Name</th>
                 @foreach (var user in users)
                 {
-                    <th>@user.username <br/> Δx̄ @Model.userDeltas[user.username]</th>
+                    <th>@user.username <br/> Δx̄ @Model.UserDeltas[user.username]</th>
                 }
                 <th>Group Average Rating</th>
                 <th>Total Delta to Average <br/> x̄ @((Model.SharedMovies.Sum(x => x.delta)
                                                       /Model.SharedMovies.Count).ToString())</th>
-                @if (Model.sortOrder == SortType.Popularity || Model.sortOrder == SortType.PopularityDesc)
+                @if (Model.SortOrder == SortType.Popularity || Model.SortOrder == SortType.PopularityDesc)
                 {
                     <th># of ratings</th>
                 }
@@ -143,8 +112,7 @@ function filter(type, role, name){
                                             .Aggregate("", (x, y) => ($"{x}{y.Key}={y.Value}&")));
                                         sb.Append($"sortString={viewSortType}");
                                         sb.Append($"' hx-target=\"#userAnalysis\"> {viewSortType} </div>");
-                                        @Html.Raw(sb.ToString());
-                    
+                                        @Html.Raw(sb.ToString())
                                     }
                                 </div>
                             </div></th>
@@ -165,7 +133,7 @@ function filter(type, role, name){
                     }
                     <td>@Math.Round(movie.Item2,2)</td>
                     <td>@movie.Item3</td>
-                    @if (Model.sortOrder == SortType.Popularity || Model.sortOrder == SortType.PopularityDesc)
+                    @if (Model.SortOrder == SortType.Popularity || Model.SortOrder == SortType.PopularityDesc)
                                     {
                                         <td>@movie.movieData.RatingCount.ToString()</td>
                                     }
@@ -196,17 +164,17 @@ function filter(type, role, name){
         <li>No users have seen the movie</li>
         <li>It is related to at least <b>two</b> movies that the group mean rating is > 8</li>
     </ul>
-    @if (Model.movieRecs.Count == 0)
+    @if (Model.MovieRecs.Count == 0)
     {
         <h2>Congrats, I don't have any recommendations for you. </h2>
     }
-    @foreach (var movie in Model.movieRecs)
+    @foreach (var movie in Model.MovieRecs)
     {           
         <div class="movieRec">
             <a href="https://letterboxd.com/film/film:@movie.id/"><h4>@movie.name.Split("-").Select(x => 
                     x[..1].ToUpper() + x[1..]).Aggregate("", (x, y) => (x + " " + y))</h4></a>
             <p>Duration: @movie.duration mins</p>
-            <p>Genres: @movie.attributes.Where(x => x.role == "genre").Aggregate("",(x,y) => ""+y.name)
+            <p>Genres: @movie.attributes.Where(x => x.role == "genre").Aggregate("",(_,y) => ""+y.name)
             </p>
         </div>
     }

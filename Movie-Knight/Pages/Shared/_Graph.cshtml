@@ -41,7 +41,7 @@
       new Chart(ctx, {
         type: 'bar',
         data: {
-          @Html.Raw(Model.barGraphData.ToString())
+          @Html.Raw(Model.BarGraphData.ToString())
         },
         options: {
          responsive: true,
@@ -59,7 +59,7 @@
       var stx = document.getElementById('scatterPlot');
       new Chart(stx, {
            type: 'scatter',
-           data: @Html.Raw(Model.scatterPlotData.ToString()),
+           data: @Html.Raw(Model.ScatterPlotData.ToString()),
            options: {
                maintainAspectRatio: false,
                plugins:{
@@ -77,7 +77,7 @@
     var rtx = document.getElementById('genreRadar');
     new Chart(rtx, {
          type: 'radar',
-         data: @Html.Raw(Model.radarPlotData.ToString()),
+         data: @Html.Raw(Model.RadarPlotData.ToString()),
          options: {
              scale: {
                  max: 10,

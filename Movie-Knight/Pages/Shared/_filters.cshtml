@@ -2,7 +2,7 @@
 @model Movie_Knight.Pages.Shared._filters
 @{ ArgumentNullException.ThrowIfNull(Model); }
 
-<tr id="info-@Model.movie.id" class="hidden-row" style="display: contents;">
+<tr id="info-@Model.movie!.id" class="hidden-row" style="display: contents;">
     <td colspan="2">
         <h6> Average Rating: @Model.movie.averageRating </h6>
         <h6> Total Ratings: @Model.movie.RatingCount</h6>
@@ -23,7 +23,7 @@
                     ))
                 {
                     <div class="filter">
-                        <button class="remove-filter" onclick="filter('Remove','@atr.role','@atr.name')">
+                        <button class="remove-filter" onclick="filterTable('Remove','@atr.role','@atr.name')">
                             <img src="img/remove.svg" alt="remove filter"/>
                         </button>
 
@@ -40,7 +40,7 @@
                                                     }
                                                     return tmpString;
                                                 }).Aggregate("", (x, y) => (x + " " + y))</p>
-                        <button class="add-filter" onclick="filter('Require','@atr.role','@atr.name')">
+                        <button class="add-filter" onclick="filterTable('Require','@atr.role','@atr.name')">
                             <img src="img/add.svg" alt="Add filter"/>
                         </button>
                     </div>

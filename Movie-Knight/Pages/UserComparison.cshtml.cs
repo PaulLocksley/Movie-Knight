@@ -4,33 +4,28 @@ using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Htmx;
-using Microsoft.AspNetCore.Authorization.Infrastructure;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.Primitives;
 using Movie_Knight.Controllers;
 using Movie_Knight.Models;
-using Movie_Knight.Pages.Shared;
 using Movie_Knight.Services;
-using HostingEnvironmentExtensions = Microsoft.AspNetCore.Hosting.HostingEnvironmentExtensions;
 
 namespace Movie_Knight.Pages;
 
 public class UserComparison : PageModel
 {
-    public List<User> ComparisonUsers;
-    public List<(Movie movieData,double mean,int delta)> SharedMovies;
-    public double totalAverageDelta;
-    public int totalAverageRating;
-    public StringBuilder barGraphData = new();
-    public StringBuilder scatterPlotData = new();
-    public StringBuilder radarPlotData = new();
-    public List<Movie> movieRecs = new();
-    public string[] rolesWeCareAbout = {"cast","studio","writer","director"};
-    public string[][] displayFilterRolesWeCareAbout = { new [] {"cast"}, new [] {"studio","writer","director"} };
-    public SortType sortOrder = SortType.DiscordDesc;
-    public Dictionary<string, double> userDeltas = new();
+    public required List<User> ComparisonUsers;
+    public required List<(Movie movieData,double mean,int delta)> SharedMovies;
+    public double TotalAverageDelta;
+    public int TotalAverageRating;
+    public StringBuilder BarGraphData = new();
+    public StringBuilder ScatterPlotData = new();
+    public StringBuilder RadarPlotData = new();
+    public List<Movie> MovieRecs = new();
+    public string[] RolesWeCareAbout = {"cast","studio","writer","director"};
+    public string[][] DisplayFilterRolesWeCareAbout = { new [] {"cast"}, new [] {"studio","writer","director"} };
+    public SortType SortOrder = SortType.DiscordDesc;
+    public Dictionary<string, double> UserDeltas = new();
     public async Task<IActionResult> OnGet(string userNames, string? filterString, string? sortString)
     {
         var stopWatch = new Stopwatch();
@@ -47,8 +42,8 @@ public class UserComparison : PageModel
         }
         if(sortString is not null)
         {
-            sortOrder = Enum.Parse<SortType>(sortString);
-            Console.WriteLine(sortOrder);
+            SortOrder = Enum.Parse<SortType>(sortString);
+            Console.WriteLine(SortOrder);
         }
         #region User Comparison
 
@@ -139,14 +134,14 @@ public class UserComparison : PageModel
                 }
             }
         }
-        catch (FileNotFoundException e)
+        catch (FileNotFoundException)
         {
             return Partial("_UserNotFound");
         }
         
 
         //Final parsing.
-        SharedMovies = sortOrder switch
+        SharedMovies = SortOrder switch
 
         {
             SortType.Popularity => SharedMovies.OrderBy(m => m.movieData.RatingCount).ToList(),
@@ -156,8 +151,8 @@ public class UserComparison : PageModel
             SortType.Discord => SharedMovies.OrderBy(m => m.delta).ToList(),
             _ => SharedMovies.OrderByDescending(m => m.Item3).ThenByDescending(m => m.Item2).ToList()
         };
-        totalAverageDelta = SharedMovies.Select(x => x.delta).Sum() / (double)SharedMovies.Count;
-        totalAverageRating = Convert.ToInt32(SharedMovies.Select(x => x.mean).Sum()) / SharedMovies.Count;
+        TotalAverageDelta = SharedMovies.Select(x => x.delta).Sum() / (double)SharedMovies.Count;
+        TotalAverageRating = Convert.ToInt32(SharedMovies.Select(x => x.mean).Sum()) / SharedMovies.Count;
 
         foreach (var user in ComparisonUsers)
         {
@@ -168,7 +163,7 @@ public class UserComparison : PageModel
                 userTotal += user.userList[m.movieData.id];
                 meanTotal += m.mean;
             }
-            userDeltas[user.username] = Math.Round(Math.Abs(userTotal - meanTotal) / SharedMovies.Count,3);
+            UserDeltas[user.username] = Math.Round(Math.Abs(userTotal - meanTotal) / SharedMovies.Count,3);
 
         }
         
@@ -213,7 +208,7 @@ public class UserComparison : PageModel
         foreach (var movieRec in recomendationCounts.Where(x => x.Value > 1)
                      .OrderByDescending(x => x.Value))
         {
-            movieRecs.Add(MovieCache.GetMovie(movieRec.Key));
+            MovieRecs.Add(MovieCache.GetMovie(movieRec.Key));
         }
         #endregion
         Console.WriteLine($"Recs took: {stopWatch.ElapsedMilliseconds}");
