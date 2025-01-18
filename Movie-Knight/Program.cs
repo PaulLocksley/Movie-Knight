@@ -1,7 +1,5 @@
 
 using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.AspNetCore.Mvc.ApplicationParts;
-using Movie_Knight.Models;
 using Prometheus;
 using SlackLogger;
 
@@ -48,7 +46,7 @@ app.UseExceptionHandler(errorApp =>
        errorApp.Run(async context =>
        {
            var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
-           var exception = context.Features.Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerFeature>()?.Error;
+           var exception = context.Features.Get<IExceptionHandlerFeature>()?.Error;
            if (exception is not null)
            {
                logger.LogError($"{exception.Message} - {exception.StackTrace?.Split("\n")[0]}");

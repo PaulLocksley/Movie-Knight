@@ -1,5 +1,3 @@
-using Movie_Knight.Models;
-
 namespace Movie_Knight.Services;
 using System.Text.RegularExpressions;
 using System.Collections.Concurrent;
@@ -51,6 +49,7 @@ public class UserService
             if (foundPage)
             {
                 var po = new ParallelOptions { MaxDegreeOfParallelism = 15 };
+                #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
                 Parallel.For(2, pageCount + 1, po, async i =>
                 {
                     var movieListTask = FetchWatchList(username, i);
@@ -64,6 +63,7 @@ public class UserService
                         movieList.Add(movie);
                     }
                 });
+                #pragma warning restore CS1998
             }
         }
         UserCache.InsertWatchListUser(username,movieList.ToList());
@@ -100,8 +100,10 @@ public class UserService
             if (foundPage)
             {
                 var po = new ParallelOptions { MaxDegreeOfParallelism = 15 };
+                #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
                 Parallel.For(2, pageCount + 1, po, async i =>
                 {
+                    
                     var movieListTask = _fetchUser(username, i);
                     while (!movieListTask.IsCompleted)
                     {
@@ -112,9 +114,8 @@ public class UserService
                     {
                         movieList[m.Key] = m.Value;
                     }
-
-                    ; //(movieListTask.Result);
                 });
+                #pragma warning restore CS1998
             }
         }
         return movieList;

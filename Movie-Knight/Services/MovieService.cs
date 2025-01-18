@@ -1,15 +1,13 @@
-using System.Collections.Concurrent;
 using System.Diagnostics;
-using System.Globalization;
 using Movie_Knight.Controllers;
 
 namespace Movie_Knight.Services;
-using Movie_Knight.Models;
+using Models;
 using System.Text.RegularExpressions;
 
 public class MovieService
 {
-    public MovieService(HttpClient client)
+    public MovieService()
     {
         Console.WriteLine("Starting new Movie Service!");
     }
@@ -18,8 +16,8 @@ public class MovieService
     {
         var movieUrl = ("film/" + url);
 
-        var _client = GetHttpClient.GetNamedHttpClient();
-        var response = await _client.GetAsync(movieUrl);
+        var httpClient = GetHttpClient.GetNamedHttpClient();
+        var response = await httpClient.GetAsync(movieUrl);
         if (!response.IsSuccessStatusCode)
         {
             throw new Exception("Letterboxd returned invalid code for movie " +url+" : "+ response.StatusCode + " : " + response.Content);
@@ -36,12 +34,12 @@ public class MovieService
         string description;
 
         //var filmData = { id: 251943, name: "Spider-Man: Into the Spider-Verse", gwiId: 301363, releaseYear: "2018", posterURL: "/film/spider-man-into-the-spider-verse/image-150/", path: "/film/spider-man-into-the-spider-verse/", runTime: 117 };
-        Regex nameDataRX = new Regex(@"\/film\/([^\/]+)\/rating-histogram");
-        name = nameDataRX.Match(content).Groups[1].Value;
+        Regex nameDataRx = new Regex(@"\/film\/([^\/]+)\/rating-histogram");
+        name = nameDataRx.Match(content).Groups[1].Value;
         //id
         //duration
-        Regex durationDataRX = new Regex("""(\d+)&nbsp;mins""");
-        duration = int.Parse(durationDataRX.Match(content).Groups[1].Value);
+        Regex durationDataRx = new Regex("""(\d+)&nbsp;mins""");
+        duration = int.Parse(durationDataRx.Match(content).Groups[1].Value);
         //release date section
         Regex releaseYearRx = new Regex(@"\/films\/year\/(\d+)");
         var releaseYear = releaseYearRx.Match(content).Groups[1].Value;
@@ -59,16 +57,17 @@ public class MovieService
         var descriptionRx = new Regex(@"<div class=.review body-text -prose -hero prettify.>.|\n.+<p>(.+)</p>");
         description = descriptionRx.Match(content).Groups[1].Value;
         //attrs:
-        Regex attrsRX = new Regex(@".+ratingCount.+");
-        var attrsMatch = attrsRX.Match(content).Value;
+        Regex attrsRx = new Regex(@".+ratingCount.+");
+        var attrsMatch = attrsRx.Match(content).Value;
         //averageRating
-        var ratingRX = new Regex(@"ratingValue.:([\d|\.]+)");
+        var ratingRx = new Regex(@"ratingValue.:([\d|\.]+)");
         try
         {
-            averageRating = double.Round((double.Parse(ratingRX.Match(attrsMatch).Groups[1].Value) * 2), 1);
+            averageRating = double.Round((double.Parse(ratingRx.Match(attrsMatch).Groups[1].Value) * 2), 1);
         }
         catch (Exception e)
         {
+            Debug.WriteLine($"Failed to parse average raiting, {e}");
             averageRating = null;
         }
 
@@ -77,13 +76,13 @@ public class MovieService
         {
             ratingCount = Int32.Parse(ratingsCountRx.Match(attrsMatch).Groups[1].ToString());
         }
-        catch (Exception _)
+        catch (Exception)
         {
             try
             {
                 Debug.WriteLine("Failed to find movie rating count attempting backup");
                 Regex backupRatingsCountsRx = new Regex("""title="(\d+)""");
-                var ratingHistogram = await _client.GetAsync($"csi/film/{url}/rating-histogram/");
+                var ratingHistogram = await httpClient.GetAsync($"csi/film/{url}/rating-histogram/");
                 if (!ratingHistogram.IsSuccessStatusCode)
                 {
                     throw new Exception(ratingHistogram.ToString());
@@ -110,22 +109,22 @@ public class MovieService
             attributes.Add((role:"studio",name:studio.Groups[1].Value));
         }
         //attrs - cast
-        Regex castRX = new Regex(@"\/actor\/([^\/]+)");
-        var castMembers = castRX.Matches(attrsMatch);
+        Regex castRx = new Regex(@"\/actor\/([^\/]+)");
+        var castMembers = castRx.Matches(attrsMatch);
         foreach (Match actor in castMembers)
         {
             attributes.Add((role:"cast",name:actor.Groups[1].Value));
         }
         //attrs - genre
-        Regex genreRX = new Regex(@"genre.:\[(.*?)\]");
-        var genresMatch = genreRX.Match(attrsMatch).Groups[1].Value;
+        Regex genreRx = new Regex(@"genre.:\[(.*?)\]");
+        var genresMatch = genreRx.Match(attrsMatch).Groups[1].Value;
         var genres = genresMatch.Replace("\"", "").Split(",");
         foreach (var genre in genres)
         {   
             attributes.Add((role:"genre",name:genre));
         }
         //attrs - ranking :)
-        attributes.Add((role:"rating",name:averageRating.ToString()));
+        attributes.Add((role:"rating",name:averageRating?.ToString() ?? "Null"));
         //attrs - writer
         Regex writersRx = new Regex(@"writer\/([^\/]+)");
         var writers = writersRx.Matches(content);
@@ -136,17 +135,17 @@ public class MovieService
         }
 
         //attrs - Director
-        Regex directorsRX = new Regex(@"director/([^/]*)");
-        var directors = directorsRX.Matches(attrsMatch);
+        Regex directorsRx = new Regex(@"director/([^/]*)");
+        var directors = directorsRx.Matches(attrsMatch);
         foreach (Match match in directors)
         {
             attributes.Add((role:"director",name:match.Groups[1].Value));
 
         }
-        Regex relatedRX = new Regex("""
+        Regex relatedRx = new Regex("""
                                     linked-film-poster.+data-film-id="(\d+)"
                                     """);
-        var relateds = relatedRX.Matches(content);
+        var relateds = relatedRx.Matches(content);
         var relatedFilms = (relateds.Select(x => Int32.Parse(x.Groups[1].Value)).ToArray());
         
         return new Movie(attributes, name, id, duration, averageRating, ratingCount, releaseDate, description,relatedFilms);

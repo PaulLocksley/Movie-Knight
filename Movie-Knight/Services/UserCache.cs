@@ -1,6 +1,4 @@
 using System.Collections.Concurrent;
-using System.Diagnostics;
-using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Movie_Knight.Services;
 

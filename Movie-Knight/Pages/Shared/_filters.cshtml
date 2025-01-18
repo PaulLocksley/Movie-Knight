@@ -2,7 +2,7 @@
 @model Movie_Knight.Pages.Shared._filters
 @{ ArgumentNullException.ThrowIfNull(Model); }
 
-<tr id="info-@Model.movie.id" class="hidden-row" style="display: contents;">
+<tr id="info-@Model.movie!.id" class="hidden-row" style="display: contents;">
     <td colspan="2">
         <h6> Average Rating: @Model.movie.averageRating </h6>
         <h6> Total Ratings: @Model.movie.RatingCount</h6>

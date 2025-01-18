@@ -13,18 +13,18 @@ namespace Movie_Knight.Pages.Shared;
 
 public class _Graph : PageModel
 {
-    public List<User> ComparisonUsers;
-    public List<(Movie movieData,double mean,int delta)> SharedMovies;
-    public double totalAverageDelta;
-    public int totalAverageRating;
-    public StringBuilder barGraphData = new();
-    public StringBuilder scatterPlotData = new();
-    public StringBuilder radarPlotData = new();
-    public List<Movie> movieRecs = new();
-    public string[] rolesWeCareAbout = {"cast","studio","writer","director"};
-    public string[][] displayFilterRolesWeCareAbout = { new [] {"cast"}, new [] {"studio","writer","director"} };
-    public SortType sortOrder = SortType.DiscordDesc;
-    public Dictionary<string, double> userDeltas = new();
+    public required List<User> ComparisonUsers;
+    public required List<(Movie movieData,double mean,int delta)> SharedMovies;
+    public double TotalAverageDelta;
+    public int TotalAverageRating;
+    public StringBuilder BarGraphData = new();
+    public StringBuilder ScatterPlotData = new();
+    public StringBuilder RadarPlotData = new();
+    public List<Movie> MovieRecs = new();
+    public string[] RolesWeCareAbout = {"cast","studio","writer","director"};
+    public string[][] DisplayFilterRolesWeCareAbout = { new [] {"cast"}, new [] {"studio","writer","director"} };
+    public SortType SortOrder = SortType.DiscordDesc;
+    public Dictionary<string, double> UserDeltas = new();
     
     public async Task<IActionResult> OnGet(string userNames, string? filterString)
     {
@@ -126,7 +126,7 @@ public class _Graph : PageModel
                 }
             }
         }
-        catch (FileNotFoundException e)
+        catch (FileNotFoundException)
         {
             return Partial("_UserNotFound");
         }
@@ -134,8 +134,8 @@ public class _Graph : PageModel
 
         //Final parsing.
         SharedMovies =  SharedMovies.OrderByDescending(m => m.Item3).ThenByDescending(m => m.Item2).ToList();
-        totalAverageDelta = SharedMovies.Select(x => x.delta).Sum() / (double)SharedMovies.Count;
-        totalAverageRating = Convert.ToInt32(SharedMovies.Select(x => x.mean).Sum()) / SharedMovies.Count;
+        TotalAverageDelta = SharedMovies.Select(x => x.delta).Sum() / (double)SharedMovies.Count;
+        TotalAverageRating = Convert.ToInt32(SharedMovies.Select(x => x.mean).Sum()) / SharedMovies.Count;
 
         foreach (var user in ComparisonUsers)
         {
@@ -146,7 +146,7 @@ public class _Graph : PageModel
                 userTotal += user.userList[m.movieData.id];
                 meanTotal += m.mean;
             }
-            userDeltas[user.username] = Math.Round(Math.Abs(userTotal - meanTotal) / SharedMovies.Count,3);
+            UserDeltas[user.username] = Math.Round(Math.Abs(userTotal - meanTotal) / SharedMovies.Count,3);
 
         }
         
@@ -162,7 +162,7 @@ public class _Graph : PageModel
 
         var barGraphTempData = SharedMovies.OrderByDescending(x => x.delta).Chunk(20).First();
         
-        barGraphData.Append($$"""
+        BarGraphData.Append($$"""
             labels: [{{barGraphTempData
                 .Select(x => $""" "{x.movieData.name}" """).Aggregate((x,y) => 
                 x +"," + y)}}],
@@ -170,7 +170,7 @@ public class _Graph : PageModel
             """);
         foreach (var user in ComparisonUsers)
         {
-            barGraphData.Append($$"""
+            BarGraphData.Append($$"""
                                    {
                                    label: '{{user.username}}',
                                    data: [{{
@@ -181,7 +181,7 @@ public class _Graph : PageModel
                                    },
                                    """);
         }
-        barGraphData.Append($$"""
+        BarGraphData.Append($$"""
                                {
                                label: 'Group average',
                                data: [{{
@@ -198,13 +198,13 @@ public class _Graph : PageModel
                                }
                                """);
 
-        barGraphData.Append("]");
+        BarGraphData.Append("]");
 
         var personData = new Dictionary<(string role, string name), (int frequency, double score)>();
         foreach (var movie in SharedMovies)
         {
             foreach ((string role, string name)person in movie.movieData.attributes
-                         .Where(x => rolesWeCareAbout.Contains(x.role)))
+                         .Where(x => RolesWeCareAbout.Contains(x.role)))
             {
                 if (personData.ContainsKey(person))
                 {
@@ -224,31 +224,32 @@ public class _Graph : PageModel
                 personData[person].score / personData[person].frequency);
         }
         //put above data into table
-        scatterPlotData.Append($$"""
+        ScatterPlotData.Append($$"""
                                  {
-                                 labels: [{{rolesWeCareAbout.Select(x=>$"'{x}'").Aggregate((x,y)=>x+","+y)}}],
+                                 labels: [{{RolesWeCareAbout.Select(x=>$"'{x}'").Aggregate((x,y)=>x+","+y)}}],
                                  datasets:[
                                  
                                  """);
-        foreach (var role in rolesWeCareAbout)
+        foreach (var role in RolesWeCareAbout)
         {
             var tempItems = personData
                 .Where(p => p.Key.role == role && p.Value.frequency > 2);
                 
-            scatterPlotData.Append($$"""
+            ScatterPlotData.Append($$"""
                                                           {
                                                           label: '{{role}}',
                                                           data: [
                                      """);
-            if (tempItems.Any())
-                scatterPlotData.Append(tempItems.Select(x => $$"""
-                                                               { x: {{x.Value.frequency}}, y: {{x.Value.score}},name:'{{x.Key.name}}' }
-                                                               """).Aggregate((x, y) => (x + "," + y)));
-            scatterPlotData.Append("]},");
+            var tempItemList = tempItems.ToList();
+            if (tempItemList.Count != 0)
+                ScatterPlotData.Append(tempItemList.Select(x => $$"""
+                                                                   { x: {{x.Value.frequency}}, y: {{x.Value.score}},name:'{{x.Key.name}}' }
+                                                                   """).Aggregate((x, y) => (x + "," + y)));
+            ScatterPlotData.Append("]},");
         }
 
-        scatterPlotData.Remove(scatterPlotData.Length - 1, 1);
-        scatterPlotData.Append("]}");
+        ScatterPlotData.Remove(ScatterPlotData.Length - 1, 1);
+        ScatterPlotData.Append("]}");
         var dictscores = new Dictionary<string, (int count, double sum)>();
         foreach (var m in SharedMovies.Where(m => m.movieData.averageRating.HasValue))
         {
@@ -265,7 +266,7 @@ public class _Graph : PageModel
                 }
             }
         }
-        radarPlotData.Append($$"""
+        RadarPlotData.Append($$"""
                                {
                                labels: [{{dictscores.Select(x=>$"'{x.Key}'").Aggregate((x,y)=>x+","+y)}}],
                                datasets:[{
