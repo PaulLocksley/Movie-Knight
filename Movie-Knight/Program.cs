@@ -42,7 +42,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-app.Logger.LogInformation("Application started");
+app.Logger.LogWarning("Movie-Knight has started");
 app.UseExceptionHandler(errorApp =>
    {
        errorApp.Run(async context =>
