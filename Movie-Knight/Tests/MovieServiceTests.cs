@@ -1,12 +1,21 @@
+using System.Runtime.InteropServices;
 using Newtonsoft.Json;
 using Movie_Knight.Models;
 using Movie_Knight.Services;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Movie_Knight.Tests;
 
 public class MovieServiceTests
 {
+    private readonly ITestOutputHelper _testOutputHelper;
+
+    public MovieServiceTests(ITestOutputHelper testOutputHelper)
+    {
+        _testOutputHelper = testOutputHelper;
+    }
+
     [Fact]
     public async Task MovieServiceParsesMovie()
     {
@@ -16,13 +25,16 @@ public class MovieServiceTests
                         """;
         var jt = new JsonSerializer();
         
-        var movie = jt.Deserialize<Movie>(new JsonTextReader(new StringReader(movieJson)));
+        var movie = jt.Deserialize<Movie>(new JsonTextReader(new StringReader(movieJson)))!;
+        var ogattributes = movie.attributes.Where(x => x.role != "rating").ToDictionary(x => $"{x.role}{x.name}", x => x.name);
         //Act
-        var parsedMovie = await movieService.FetchMovie("film:46344");
+        var parsedMovie = await movieService.FetchMovie("film:46344",46344);
+        var parsedAttributes = parsedMovie.attributes.Where(x => x.role != "rating").ToDictionary(x => $"{x.role}{x.name}", x => x.name);
         //Assert
         Assert.Equal(movie.id, parsedMovie.id);
-        Assert.Equal(movie.attributes, parsedMovie.attributes);
+        Assert.Equal(ogattributes, parsedAttributes);
         Assert.Equal(movie.name, parsedMovie.name);
         Assert.Equal(movie.duration, parsedMovie.duration);
+        Assert.True(float.Parse(parsedMovie.attributes.First(x => x.role == "rating").name) > 8.0);
     }    
 }
