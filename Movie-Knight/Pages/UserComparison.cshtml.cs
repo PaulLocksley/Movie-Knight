@@ -51,7 +51,7 @@ public class UserComparison : PageModel
 
         try
         {
-            if (userNames is null)
+            if (userNames is null || userNames.Length == 0)
             {
                 return BadRequest("Please provide user name/s");
             }
