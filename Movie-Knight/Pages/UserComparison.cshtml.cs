@@ -51,13 +51,11 @@ public class UserComparison : PageModel
 
         try
         {
-            if (userNames is null || userNames.Length == 0)
+            if (string.IsNullOrWhiteSpace(userNames))
             {
                 return BadRequest("Please provide user name/s");
             }
-            var users = userNames.Split(",")
-                .Select(x => x.Trim())
-                .ToArray();
+            var users = userNames.Split("," , StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
 
             if (users.Length >= 8)
             {
