@@ -26,7 +26,7 @@ public class UserComparison : PageModel
     public string[][] DisplayFilterRolesWeCareAbout = { new [] {"cast"}, new [] {"studio","writer","director"} };
     public SortType SortOrder = SortType.DiscordDesc;
     public Dictionary<string, double> UserDeltas = new();
-    public async Task<IActionResult> OnGet(string userNames, string? filterString, string? sortString)
+    public async Task<IActionResult> OnGet(string? userNames, string? filterString, string? sortString)
     {
         var stopWatch = new Stopwatch();
         stopWatch.Start();
@@ -40,15 +40,21 @@ public class UserComparison : PageModel
         {
             filters = JsonSerializer.Deserialize<Filter[]>(filterString);
         }
-        if(sortString is not null)
+
+        if (sortString is not null)
         {
             SortOrder = Enum.Parse<SortType>(sortString);
             Console.WriteLine(SortOrder);
         }
+
         #region User Comparison
 
         try
         {
+            if (userNames is null)
+            {
+                return BadRequest("Please provide user name/s");
+            }
             var users = userNames.Split(",")
                 .Select(x => x.Trim())
                 .ToArray();
@@ -86,7 +92,7 @@ public class UserComparison : PageModel
                 {
                     return Partial("_NoSharedMovies");
                 }
-        }
+            }
 
             //Delta calculations.
             IDictionary<int, double> averageRatings = new ConcurrentDictionary<int, double>();
