@@ -55,7 +55,7 @@ public class UserComparison : PageModel
             {
                 return BadRequest("Please provide user name/s");
             }
-            var users = userNames.Split("," , StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+            var users = userNames.Split([','], StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
 
             if (users.Length >= 8)
             {
