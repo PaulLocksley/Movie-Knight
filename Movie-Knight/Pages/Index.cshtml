@@ -6,32 +6,35 @@
 }
 
 
-<div class="container" id="entryFrom">
-    <div class="hstack">
-        <form class="userInputForm">
-            <h4>>Enter a comma seperated list of usernames to compare. (max 8) </h4>
+<div class="container text-gray-200" id="entryFrom">
+    <div class="flex flex-col">
+        <form class="userInputForm flex flex-col gap-2">
+            <h4 class="text-gray-200 text-xl">>Enter a comma seperated list of usernames to compare. (max 8) </h4>
+            <div class="flex min-w-full gap-2">
             <input type="text" pattern="[A-Za-z0-9,_\-\s]+" name="userNames"
-                   placeholder="James-Holden, Naomi-Nagata, Tim, Alex-Kamal, Peaches, Gunny"/>
+                   placeholder="James-Holden, Naomi-Nagata, Tim, Alex-Kamal, Peaches, Gunny"
+                   autocomplete="letterboxd-users"
+                   class="h-10 w-full bg-transparent border border-blue-400 hover:border-blue-500 focus:border-red-500">
+                <button id="help" type="button" onclick="showHelp()" class="p-2 bg-cyan-500 hover:bg-cyan-300 rounded-full mt-1"><p class="font-bold">?</p></button>
+            </div>
             <button hx-get="UserComparison"
                     hx-include="[name='userNames']"
                     hx-target="#userAnalysis"
                     hx-indicator="#spinner"
-                    hx-replace-url="true">
+                    hx-replace-url="true"
+                    class="text-gray-200 hover:text-gray-400 bg-cyan-500 hover:bg-cyan-300 rounded-1 p-3 font-semibold">
                 Load user comparison
             </button>
         </form>
-        <button id="help" onclick="showHelp()"><p>?</p></button>
         </div>
     <img id="spinner" class="htmx-indicator" src="/img/loading.svg" alt="Loading indicator"/>
 </div>
-    <div id="userAnalysis">
-        <h3>Welcome to Movie Knight</h3>
-        <h2 class="text-orange-500">Tailwind Test</h2>
-        <h4>Group analysis and recommendations for letterboxd users </h4>
-        <ul>
+    <div id="userAnalysis" class="text-gray-200 ">
+        <h4 class="text-gray-200 text-lg">Group analysis and recommendations for letterboxd users </h4>
+        <ul class="list-disc list-inside">
         <li>Judge your friends bad taste:</li>
-        <table>
-            <tbody><tr>
+        <table class="table-auto border-collapse w-full text-center">
+            <tbody><tr class="p-4 font-bold text-xl">
                 <th>Name</th>
                 <th>James</th>
                 <th>Alex</th>
@@ -39,17 +42,17 @@
                 <th>Group Average Rating</th>
                 <th>Total Delta to Average</th>
             </tr>
-            <tr>
-                <td>
+            <tr class="text-lg">
+                <td class="border-y border-gray-800">
                     <a>
                         Paul Blart Mall Cop
                     </a>
                 </td>
-                <td>4</td>
-                <td style="background: darkred">10</td>
-                <td>2</td>
-                <td>5</td>
-                <td>8</td>
+                <td class="border-y border-gray-800">4</td>
+                <td class="border-y border-gray-800" style="background: darkred">10</td>
+                <td class="border-y border-gray-800">2</td>
+                <td class="border-y border-gray-800">5</td>
+                <td class="border-y border-gray-800">8</td>
 
             </tr>
             </tbody></table>
@@ -96,9 +99,12 @@
     });
 </script>
 <dialog>
-    <div class="instruction-modal">
-        <h3>Instructions</h3>
-        <ol>
+    <div class="instruction-modal text-gray-200">
+        <div class="flex justify-between">
+        <h3 class="text-xl">Instructions</h3>
+        <button autofocus class="bg-cyan-500 hover:bg-cyan-300 p-4 ml-4 ">Close</button>
+        </div>
+        <ol class="list-decimal list-inside">
             <li>For each user you would like to include navigate to their letterboxd profile and copy the system name
                 from the address bar ie:<br/> <img src="img/UsernName.jpg" alt="A URL with the Path highlighted"/> </li>
             <li>
@@ -109,7 +115,6 @@
             <li>Optional: Open movie details and add filters to get more granular information ie:<br/>
                 <img src="img/filter-example.jpg" alt=""/><br/> In the above image you can press plus to only include movies with Wes Anderson as a director or minus to remove all movies directed by Wes Anderson</li>
         </ol>
-        <button autofocus>Close</button>
     </div>
 </dialog>
 <script>
