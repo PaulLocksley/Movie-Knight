@@ -28,7 +28,7 @@ jobs:
 
     - name: Install Node.js dependencies
       run: npm install
-      working-directory: ./Movie-Knight/Movie-Knight
+      working-directory: /Movie-Knight
     - name: Restore dependencies
       run: dotnet restore
 
