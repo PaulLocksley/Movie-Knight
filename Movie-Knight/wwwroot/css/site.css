@@ -30,12 +30,12 @@ body {
   overflow: hidden;
   flex-flow: row;
   border: 1px solid #ccc;
-  background-color: #4cc9F0;
+  background-color: #06B6D4;
 }
 .tablinks {
   width: 25%;
   margin: 0;
-  color: #f72585;
+  color: #030712;
   font-weight: bolder;
 }
 .tab button {
@@ -49,11 +49,11 @@ body {
 }
 
 .tab button:hover {
-  background-color: #4361EE;
+  background-color: #67E8F9;
 }
 
 .tab button.active {
-  background-color: #7209B7;
+  background-color: #67E8F9;
 }
 
 .tabcontent {
@@ -155,10 +155,7 @@ input:invalid {
   width: 30px;
   height: 30px;
   border-radius: 15px;
-  margin-left: 20px;
-  margin-top: 60px;
 }
-
 #help > p {
   font-weight: 500;
   padding: 0;
@@ -218,7 +215,7 @@ input:invalid {
   display: none;
   position: absolute;
   background-color: var(--primary);
-  left: -158px; <!-- todo: Work out CSS to reactivly get this properly -->
+  left: -158px;
   min-width: 160px;
   box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
   border-radius: 20px 0 20px 20px;
@@ -246,3 +243,7 @@ input:invalid {
 .watchListTable {
   margin-top: 60px;
 }
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

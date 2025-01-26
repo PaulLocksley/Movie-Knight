@@ -3,26 +3,28 @@
 @{ ArgumentNullException.ThrowIfNull(Model); }
 
 <tr id="info-@Model.movie!.id" class="hidden-row" style="display: contents;">
-    <td colspan="2">
-        <h6> Average Rating: @Model.movie.averageRating </h6>
-        <h6> Total Ratings: @Model.movie.RatingCount</h6>
-        <div style="width: 400px"><h6>Description:</h6>
-            <p> @Html.Raw(Model.movie.description) </p>
+    <td colspan="100%">
+    <div class="flex">
+        <div class="flex gap-2">
+            <div class="flex flex-col">
+            <h6 class="text-lg"> Average Rating:<br/>@Model.movie.averageRating </h6>
+            <h6 class="text-lg"> Total Ratings:<br/>@Model.movie.RatingCount</h6>
+            </div>
+            <div style="width: 300px"><h6>Description:</h6>
+                <p> @Html.Raw(Model.movie.description) </p>
+            </div>
         </div>
-        
-    </td>
     @foreach (var role in Model.displayFilterRolesWeCareAbout)
     {
-        <td colspan="2">
             <div class="filters">
                 <h5>@(role[0] == "cast" ? "Cast" : "Other")</h5>
                 <span></span>
 
                 @foreach (var atr in Model.movie.attributes.Where(x =>
-                    role.Contains(x.role)
-                    ))
+                              role.Contains(x.role)
+                          ))
                 {
-                    <div class="filter">
+                    <div class="filter max-h-6">
                         <button class="remove-filter" onclick="filterTable('Remove','@atr.role','@atr.name')">
                             <img src="img/remove.svg" alt="remove filter"/>
                         </button>
@@ -33,11 +35,13 @@
                                                     {
                                                         return "";
                                                     }
+
                                                     var tmpString = x[..1].ToUpper();
                                                     if (x.Length > 1)
                                                     {
                                                         tmpString += x[1..];
                                                     }
+
                                                     return tmpString;
                                                 }).Aggregate("", (x, y) => (x + " " + y))</p>
                         <button class="add-filter" onclick="filterTable('Require','@atr.role','@atr.name')">
@@ -46,14 +50,12 @@
                     </div>
                 }
             </div>
-        </td>
-
     }
+    </div>
 </tr>
-@{
-    Layout = null;
-}
-
+    @{
+        Layout = null;
+    }
 
 @*<div class="filter-groups">
     @foreach(var ct in @Model.rolesWeCareAbout){

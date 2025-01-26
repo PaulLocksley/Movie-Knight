@@ -4,28 +4,29 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>@ViewData["Title"] - Movie Knight</title>
-    <link rel="stylesheet" href="css/pico.min.css">
     <script src="~/js/htmx.min.js"></script>
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/>
+    <link rel="stylesheet" href="~/css/styles.css" asp-append-version="true" />
     
     <link rel="apple-touch-icon" sizes="180x180" href="img/icon/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="img/icon/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="img/icon/favicon-16x16.png">
 </head>
-<body>
+<body class="bg-slate-900">
 <script src="https://cdn.jsdelivr.net/npm/chart.js" async></script>
-<header class="border-bottom" style="padding-top: 0; padding-bottom: 0">
+<header class="border-b-1 border-gray-400">
     <a asp-page="Index" style="text-decoration: none">
-        <div class="grid" >
+        <div class="flex" >
             <img src="img/web-logo-small.webp" alt="" height="128px" width="128px" id="siteLogo"/>
-            <h3 style="margin-top: 40px">Movie Knight</h3>
-            
+            <h3 class="mx-auto max-w-4xl p-4 text-gray-200 font-semibold align-middle align-text-bottom text-7xl">Movie Knight</h3>
+            <!-- CSS Professionals hate this one trick -->
+            <img src="img/web-logo-small.webp" alt="" class="invisible" height="128px" width="128px" id="siteLogo"/>
         </div>
     </a>
  <hr/>
 </header>
-<div class="container">
-    <main role="main" class="pb-3">
+<div class="max-w-5xl mx-auto px-4">
+    <main role="main" class="pb-3 text-gray-200">
         @RenderBody()
     </main>
 </div>

@@ -1,5 +1,6 @@
 bin/
 obj/
+node_modules/
 /packages/
 riderModule.iml
 /_ReSharper.Caches/
@@ -8,3 +9,4 @@ Movie-KnightMovieCache.420
 Movie-KnightMovieCache.420
 Movie-KnightMovieCache.json
 Movie-Knight.sln.DotSettings.user
+Movie-Knight/wwwroot/css/styles.css

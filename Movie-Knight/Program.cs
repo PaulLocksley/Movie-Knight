@@ -30,7 +30,6 @@ if (loggingUrl is not null)
         options.WebhookUrl = $"{loggingUrl}/slack";
         options.NotificationLevel = LogLevel.Error;
     });
-
 }
 var app = builder.Build();
 

@@ -3,12 +3,16 @@ WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:9.0-noble-amd64 AS build-settup
 WORKDIR /src
-COPY ["Movie-Knight/Movie-Knight.csproj", "Movie-Knight/"]
-RUN dotnet restore "Movie-Knight/Movie-Knight.csproj"
+RUN apt update
+RUN apt install -y nodejs npm
+RUN npm install -D tailwindcss
+
+FROM build-settup AS build
+WORKDIR /src
 COPY . .
-WORKDIR "/src/Movie-Knight"
+RUN dotnet restore "Movie-Knight.csproj"
 RUN dotnet build "Movie-Knight.csproj" -c Release -o /app/build
 
 FROM build AS publish
@@ -17,4 +21,6 @@ RUN dotnet publish "Movie-Knight.csproj" -c Release -o /app/publish /p:UseAppHos
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+EXPOSE 8080
+EXPOSE 4010
 ENTRYPOINT ["dotnet", "Movie-Knight.dll"]
