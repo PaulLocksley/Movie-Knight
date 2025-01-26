@@ -27,7 +27,7 @@ public class MovieService
 
         IList<(string role, string name)> attributes = new List<(string role, string name)>();
         string name;
-        int duration;
+        int duration = 0;
         double? averageRating;
         int ratingCount;
         DateTime? releaseDate;
@@ -39,7 +39,7 @@ public class MovieService
         //id
         //duration
         Regex durationDataRx = new Regex("""(\d+)&nbsp;mins""");
-        duration = int.Parse(durationDataRx.Match(content).Groups[1].Value);
+        int.TryParse(durationDataRx.Match(content).Groups[1].Value, out duration);
         //release date section
         Regex releaseYearRx = new Regex(@"\/films\/year\/(\d+)");
         var releaseYear = releaseYearRx.Match(content).Groups[1].Value;

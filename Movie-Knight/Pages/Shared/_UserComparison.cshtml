@@ -3,39 +3,11 @@
 @model Movie_Knight.Pages.UserComparison
 @{ ArgumentNullException.ThrowIfNull(Model); }
 <script>
-    let graphsLoaded = false;
-    let watchListLoaded = false;
+    var graphsLoaded = false;
+    var watchListLoaded = false;
 
 
-    function openTab(evt, viewName) {
-  // Declare all variables
-  let i, tabcontent, tablinks;
-  if (!graphsLoaded && viewName === "graphView"){
-       htmx.ajax('GET', '/_Graph?'+ new URLSearchParams(window.location.search), 
-                {target:'#graphView', swap:'innerHTML'})
-      graphsLoaded = true
-  }
-  if (!watchListLoaded && viewName === "watchListView"){
-    htmx.ajax('GET','/_WatchList?'+ new URLSearchParams(window.location.search),
-        {target:'#watchListView',swap:'innerHTML'})
-    watchListLoaded = true
-  }
-  // Get all elements with class="tabcontent" and hide them
-  tabcontent = document.getElementsByClassName("tabcontent");
-  for (i = 0; i < tabcontent.length; i++) {
-    tabcontent[i].style.display = "none";
-  }
-
-  // Get all elements with class="tablinks" and remove the class "active"
-  tablinks = document.getElementsByClassName("tablinks");
-  for (i = 0; i < tablinks.length; i++) {
-    tablinks[i].className = tablinks[i].className.replace(" active", "");
-  }
-
-  // Show the current tab, and add an "active" class to the button that opened the tab
-  document.getElementById(viewName).style.display = "block";
-  evt.currentTarget.className += " active";
-}
+  
 
 var fetchedMovies = []
 
@@ -80,12 +52,12 @@ function showHidenRow(rowId) {
         
         
 
-        <table>
+        <table class="min-w-5xl">
         @if (Model.ComparisonUsers is {} users)
         {
 
-            <tr>
-                <th>Name</th>
+            <tr class="p-4 font-bold text-xl">
+                <th class="max-w-34">Name</th>
                 @foreach (var user in users)
                 {
                     <th>@user.username <br/> Δx̄ @Model.UserDeltas[user.username]</th>
@@ -98,8 +70,8 @@ function showHidenRow(rowId) {
                     <th># of ratings</th>
                 }
                 <th><div class="dropdown">
-                                <button class="dropbtn"><img src="img\sort.svg" alt="Sort" width="36px"/></button>
-                                <div class="dropdown-content">
+                                <button class="dropbtn bg-cyan-500 hover:bg-cyan-300 rounded-sm"><img src="img\sort.svg" alt="Sort" width="36px"/></button>
+                                <div class="dropdown-content bg-cyan-500 hover:bg-cyan-300 text-gray-950">
                                     @foreach (var viewSortType in Enum.GetValues(typeof(SortType)).Cast<SortType>())
                                     {
                                         var sb = new StringBuilder();
@@ -119,9 +91,9 @@ function showHidenRow(rowId) {
             </tr>
             @foreach (var movie in movies)
             {
-                <tr onclick="showHidenRow('info-@movie.movieData.id')">
-                    <td>
-                        <a href="https://letterboxd.com/film/film:@movie.movieData.id/">
+                <tr onclick="showHidenRow('info-@movie.movieData.id')" class="text-lg border-y border-gray-800">
+                    <td class="max-w-34">
+                        <a href="https://letterboxd.com/film/film:@movie.movieData.id/" class="text-blue-500 hover:text-blue-400">
                             @movie.movieData.name.Split("-").Select(x =>
                                 x[..1].ToUpper() + x[1..]).Aggregate("", (x, y) => (x + " " + y))
                         </a>
@@ -158,25 +130,39 @@ function showHidenRow(rowId) {
 
 <!-- Recommendation Section -->
 <div id="recommendationsView" class="tabcontent">
-    <h3>Recommendations:</h3>
+    <h3 class="text-xl">Recommendations:</h3>
     <p>Recommendations are based on the following criteria:</p>
-    <ul>
+    <ul class="list-disc list-inside">
         <li>No users have seen the movie</li>
-        <li>It is related to at least <b>two</b> movies that the group mean rating is > 8</li>
+        <li>It is related to at least <b class="font-semibold">two</b> movies that the group has given a mean rating of 8 or above</li>
     </ul>
     @if (Model.MovieRecs.Count == 0)
     {
         <h2>Congrats, I don't have any recommendations for you. </h2>
     }
-    @foreach (var movie in Model.MovieRecs)
-    {           
-        <div class="movieRec">
-            <a href="https://letterboxd.com/film/film:@movie.id/"><h4>@movie.name.Split("-").Select(x => 
-                    x[..1].ToUpper() + x[1..]).Aggregate("", (x, y) => (x + " " + y))</h4></a>
-            <p>Duration: @movie.duration mins</p>
-            <p>Genres: @movie.attributes.Where(x => x.role == "genre").Aggregate("",(_,y) => ""+y.name)
-            </p>
-        </div>
+    else
+    {
+        <table class="text-left border-collapse w-full">
+            <tr class="text-xl">
+                <th scope="col">Title</th>
+                <th scope="col">Genre</th>
+                <th scope="col">Duration (mins)</th>
+            </tr>
+            @foreach (var movie in Model.MovieRecs.OrderBy(x => x.attributes.Where(a => a.role == "genre").Aggregate("", (_, y) => "" + y.name)))
+            {
+                <tr class="border-y border-gray-800">
+                <th scope="row">
+                    <a class="text-lg text-blue-500 hover:text-blue-400" href="https://letterboxd.com/film/film:@movie.id/">
+                        <h4>@movie.name.Split("-").Select(x =>
+                                x[..1].ToUpper() + x[1..]).Aggregate("", (x, y) => (x + " " + y))</h4></a></th>
+
+            <td>@movie.attributes.Where(x => x.role == "genre").Aggregate("", (_, y) => "" + y.name)
+            </td>
+            <td>@movie.duration</td>
+            </tr>
+                        
+            }
+        </table>
     }
 </div>
 

@@ -6,10 +6,10 @@
 }
 
 
-
-    <div>
-        <canvas id="scatterPlot"></canvas>
-    </div>
+<div>
+    <canvas id="scatterPlot"></canvas>
+</div>
+    <h3 class="text-xl">Average Genre Rating</h3>
     <div>
         <canvas id="genreRadar"></canvas>
     </div>
@@ -17,9 +17,6 @@
         <canvas id="movieScoreGraph"></canvas>
     </div>
     <style>
-        #scatterPlot{
-            height: 500px;
-        }
         #graphView {
           max-width: 100%;
         }
@@ -61,7 +58,7 @@
            type: 'scatter',
            data: @Html.Raw(Model.ScatterPlotData.ToString()),
            options: {
-               maintainAspectRatio: false,
+               maintainAspectRatio: true,
                plugins:{
                     tooltip: {
                         callbacks: {
