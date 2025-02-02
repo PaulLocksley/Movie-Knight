@@ -16,17 +16,22 @@ public class MovieService
     public async Task<Movie> FetchMovie(string url, int id, int attempts = 0)
     {
         var movieUrl = ("film/" + url);
-
         var httpClient = GetHttpClient.GetNamedHttpClient();
         var response = await httpClient.GetAsync(movieUrl);
         if (!response.IsSuccessStatusCode)
         {
-            if (response.StatusCode == HttpStatusCode.TooManyRequests && attempts < 10)
+            var newException = response.StatusCode switch
             {
-                await Task.Delay(10_000);
-                return await FetchMovie(url, id, attempts + 1 );
-            }
-            throw new Exception("Letterboxd returned invalid code for movie " +url+" : "+ response.StatusCode + " : " + response.Content);
+                HttpStatusCode.TooManyRequests => new Exception("Too Many Requests"),
+                HttpStatusCode.NotFound =>  new FileNotFoundException(
+                    $"Letterboxd could not locate movie {url} : {response.StatusCode}"),
+                _ => new Exception($"Unknown Error: {url} : {response.StatusCode}"),
+            };
+
+            if (response.StatusCode != HttpStatusCode.TooManyRequests || attempts >= 10) throw newException;
+
+            await Task.Delay(10_000);
+            return await FetchMovie(url, id, attempts + 1 );
         }
         var content = await response.Content.ReadAsStringAsync();
 

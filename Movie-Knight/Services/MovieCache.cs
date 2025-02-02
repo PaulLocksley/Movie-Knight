@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using Movie_Knight.Models;
 using Newtonsoft.Json;
 
@@ -44,19 +45,23 @@ public static class MovieCache
     
     public static Movie GetMovie(int id)
     {
-        if(!Cache.TryGetValue(id,out var returnMovie))
-        {
-            var movie = MovieService.FetchMovie("film:" + id, id);
-            while(!movie.IsCompleted){ Thread.Sleep(10); }
+        if (Cache.TryGetValue(id, out var returnMovie)) return returnMovie;
 
-            if (movie.IsFaulted)
+        var movie = MovieService.FetchMovie("film:" + id, id);
+        while(!movie.IsCompleted){ Thread.Sleep(10); }
+
+        if (movie.IsFaulted)
+        {
+            if (movie.Exception.InnerException is FileNotFoundException)
             {
-                throw new Exception($"Failed to get movie with id {id} \n {movie.Exception} \n {movie.Exception.Message}", movie.Exception);
+                Debug.WriteLine($"Movie with id {id} not found.");
+                return new Movie([], "Not Found", id, 0, 0.0,0,DateTime.MaxValue,"Movie not found.",[]);
             }
-            Cache[id] =  movie.Result;
-            returnMovie =  movie.Result;
-            UpdateFileCache();
+            throw new Exception($"Failed to get movie with id {id} \n {movie.Exception} \n {movie.Exception.Message}", movie.Exception);
         }
+        Cache[id] =  movie.Result;
+        returnMovie =  movie.Result;
+        UpdateFileCache();
         return returnMovie;
     }
 

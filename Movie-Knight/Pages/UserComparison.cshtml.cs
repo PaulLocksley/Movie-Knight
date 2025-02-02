@@ -174,7 +174,7 @@ public class UserComparison : PageModel
         #endregion
         
         
-        
+        Console.WriteLine($"Users: {string.Join(" ", ComparisonUsers.Select(x => x.username))})");
         Console.WriteLine($"comparison took: {stopWatch.ElapsedMilliseconds}");
         stopWatch.Reset();
         stopWatch.Start();
