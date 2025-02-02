@@ -51,7 +51,7 @@ public static class MovieCache
 
             if (movie.IsFaulted)
             {
-                throw new Exception($"Failed to get movie with id {id} \n {movie.Exception} \n {movie.Exception.Message}");
+                throw new Exception($"Failed to get movie with id {id} \n {movie.Exception} \n {movie.Exception.Message}", movie.Exception);
             }
             Cache[id] =  movie.Result;
             returnMovie =  movie.Result;
