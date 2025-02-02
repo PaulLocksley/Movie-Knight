@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Net;
 using Movie_Knight.Controllers;
 
 namespace Movie_Knight.Services;
@@ -12,7 +13,7 @@ public class MovieService
         Console.WriteLine("Starting new Movie Service!");
     }
     
-    public async Task<Movie> FetchMovie(string url, int id)
+    public async Task<Movie> FetchMovie(string url, int id, int attempts = 0)
     {
         var movieUrl = ("film/" + url);
 
@@ -20,6 +21,11 @@ public class MovieService
         var response = await httpClient.GetAsync(movieUrl);
         if (!response.IsSuccessStatusCode)
         {
+            if (response.StatusCode == HttpStatusCode.TooManyRequests && attempts < 10)
+            {
+                await Task.Delay(10_000);
+                return await FetchMovie(url, id, attempts + 1 );
+            }
             throw new Exception("Letterboxd returned invalid code for movie " +url+" : "+ response.StatusCode + " : " + response.Content);
         }
         var content = await response.Content.ReadAsStringAsync();
