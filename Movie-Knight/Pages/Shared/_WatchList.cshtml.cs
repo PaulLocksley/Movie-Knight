@@ -29,13 +29,21 @@ public class _WatchList : PageModel
             return BadRequest("A user contains an invalid character, if this is an error let me know somehow.");
         }
 
-        var tmpMovieList = await userService.FetchWatchList(users[0]);
-        foreach (var username in users)
+        try
         {
-           tmpMovieList = tmpMovieList.Intersect(await userService.FetchWatchList(username)).ToList();
+            var tmpMovieList = await userService.FetchWatchList(users[0]);
+            foreach (var username in users)
+            {
+                tmpMovieList = tmpMovieList.Intersect(await userService.FetchWatchList(username)).ToList();
+            }
+
+            Movies = tmpMovieList.Select(MovieCache.GetMovie).ToList();
         }
-        Movies = tmpMovieList.Select(MovieCache.GetMovie).ToList();
-        
+        catch (UnauthorizedAccessException)
+        {
+            return new OkObjectResult("One of or more users watchlist is set to private");
+        }
+
         return Page();
     }
 }

@@ -1,3 +1,5 @@
+using System.Net;
+
 namespace Movie_Knight.Services;
 using System.Text.RegularExpressions;
 using System.Collections.Concurrent;
@@ -29,6 +31,10 @@ public class UserService
         var movieList = new ConcurrentBag<int>();
         var userUrl = $"{username}/watchlist/page/{pageNumber}";
         var response = await _httpClient.GetAsync(userUrl);
+        if (response.StatusCode == HttpStatusCode.Forbidden)
+        {
+            throw new UnauthorizedAccessException();
+        }
         if (!response.IsSuccessStatusCode)
         {
             throw new HttpRequestException($"Failed to fetch watch list for user {username}");
