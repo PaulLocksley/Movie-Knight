@@ -134,8 +134,8 @@ public class _Graph : PageModel
 
         //Final parsing.
         SharedMovies =  SharedMovies.OrderByDescending(m => m.Item3).ThenByDescending(m => m.Item2).ToList();
-        TotalAverageDelta = SharedMovies.Select(x => x.delta).Sum() / (double)SharedMovies.Count;
-        TotalAverageRating = Convert.ToInt32(SharedMovies.Select(x => x.mean).Sum()) / SharedMovies.Count;
+        TotalAverageDelta = SharedMovies.Select(x => x.delta).Sum() / (double)Math.Max(SharedMovies.Count,1);
+        TotalAverageRating = Convert.ToInt32(SharedMovies.Select(x => x.mean).Sum()) / Math.Max(SharedMovies.Count,1);
 
         foreach (var user in ComparisonUsers)
         {
