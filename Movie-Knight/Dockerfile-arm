@@ -1,0 +1,30 @@
+# Use ARM64 base image
+FROM --platform=linux/arm64 mcr.microsoft.com/dotnet/aspnet:9.0 AS base
+WORKDIR /app
+EXPOSE 80
+EXPOSE 443
+
+# Use SDK image without the amd64 suffix, rely on platform spec
+FROM --platform=linux/arm64 mcr.microsoft.com/dotnet/sdk:9.0-noble AS build-setup
+WORKDIR /src
+
+# Install nodejs and npm (arm64 compatible)
+RUN curl -sLO https://github.com/tailwindlabs/tailwindcss/releases/latest/download/tailwindcss-linux-arm64 && \
+   chmod +x tailwindcss-linux-arm64 && \
+   mv tailwindcss-linux-arm64 /usr/local/bin/tailwindcss
+
+FROM build-setup AS build
+WORKDIR /src
+COPY . .
+RUN dotnet restore "Movie-Knight.csproj"
+RUN dotnet build "Movie-Knight.csproj" -c Release -o /app/build
+
+FROM build AS publish
+RUN dotnet publish "Movie-Knight.csproj" -c Release -o /app/publish /p:UseAppHost=false
+
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app/publish .
+EXPOSE 8080
+EXPOSE 4010
+ENTRYPOINT ["dotnet", "Movie-Knight.dll"]
