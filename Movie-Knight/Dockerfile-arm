@@ -16,6 +16,7 @@ RUN curl -sLO https://github.com/tailwindlabs/tailwindcss/releases/latest/downlo
 FROM build-setup AS build
 WORKDIR /src
 COPY . .
+RUN ls -la
 RUN dotnet restore "Movie-Knight.csproj"
 RUN dotnet build "Movie-Knight.csproj" -c Release -o /app/build
 
