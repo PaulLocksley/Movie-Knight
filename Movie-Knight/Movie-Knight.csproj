@@ -44,6 +44,6 @@
   </ItemGroup>
 
   <Target Name="Tailwind" BeforeTargets="Build">
-    <Exec Command="tailwindcss -i ./wwwroot/css/site.css -o ./wwwroot/css/styles.css --minify" ContinueOnError="true"/>
+    <Exec Command="tailwindcss -i ./wwwroot/css/site.css -o ./wwwroot/css/styles.css --minify" ContinueOnError="WarnAndContinue"/>
   </Target>
 </Project>
