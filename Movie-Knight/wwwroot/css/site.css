@@ -1,3 +1,5 @@
+@import "tailwindcss";
+
 html {
   font-size: 14px;
 }
@@ -243,7 +245,3 @@ input:invalid {
 .watchListTable {
   margin-top: 60px;
 }
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;

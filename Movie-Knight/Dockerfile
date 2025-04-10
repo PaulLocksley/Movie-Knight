@@ -3,11 +3,11 @@ WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
-FROM mcr.microsoft.com/dotnet/sdk:9.0-noble-amd64 AS build-settup
+FROM mcr.microsoft.com/dotnet/sdk:9.0-noble AS build-settup
 WORKDIR /src
-RUN apt update
-RUN apt install -y nodejs npm
-RUN npm install -D tailwindcss
+RUN curl -sLO https://github.com/tailwindlabs/tailwindcss/releases/latest/download/tailwindcss-linux-x64 && \
+   chmod +x tailwindcss-linux-x64 && \
+   mv tailwindcss-linux-x64 /usr/local/bin/tailwindcss
 
 FROM build-settup AS build
 WORKDIR /src
