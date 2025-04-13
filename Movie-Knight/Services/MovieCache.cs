@@ -16,7 +16,7 @@ public static class MovieCache
     static MovieCache()
     {
         _jt = new JsonSerializer();
-        _filePath = $"{Environment.CurrentDirectory}{Path.DirectorySeparatorChar}MovieCache.json";
+        _filePath = $"{Environment.CurrentDirectory}{Path.DirectorySeparatorChar}cache{Path.DirectorySeparatorChar}MovieCache.json";
         MovieService = new MovieService();
         Cache =  new ConcurrentDictionary<int, Movie>();
         try
