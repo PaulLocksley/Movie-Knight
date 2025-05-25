@@ -63,5 +63,4 @@ app.UseHttpMetrics();
 app.MapRazorPages();
 app.UseAuthorization();
 app.MapControllers();
-
 app.Run();

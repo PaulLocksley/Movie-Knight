@@ -82,7 +82,7 @@ public class MovieService
             averageRating = null;
         }
 
-        Regex ratingsCountRx = new Regex("\"ratingCount\":(\\d+),");
+        Regex ratingsCountRx = new Regex(@"ratingCount.:(\d+),");
         try
         {
             ratingCount = Int32.Parse(ratingsCountRx.Match(attrsMatch).Groups[1].ToString());

@@ -93,7 +93,7 @@ public class UserService
         var content = await response.Content.ReadAsStringAsync();
         var movieList = new ConcurrentDictionary<int, int>();
         
-        Regex filmsRx = new Regex(@"film-poster-(\d+).+rated-(\d+)");
+        Regex filmsRx = new Regex(@"film:(\d+).*rated-(\d+)");
         var filmsMatch = filmsRx.Matches(content);
         foreach (Match film in filmsMatch)
         {
