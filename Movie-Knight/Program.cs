@@ -9,7 +9,7 @@ builder.Services.AddHttpClient("RequestClient", x =>
     x.BaseAddress = new Uri("https://letterboxd.com/");
     x.Timeout = TimeSpan.FromSeconds(90);
 });
-
+builder.WebHost.UseSentry();
 // Add services to the container.
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
