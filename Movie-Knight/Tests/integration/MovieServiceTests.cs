@@ -1,11 +1,10 @@
-using System.Runtime.InteropServices;
-using Newtonsoft.Json;
 using Movie_Knight.Models;
 using Movie_Knight.Services;
+using Newtonsoft.Json;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Movie_Knight.Tests;
+namespace Movie_Knight.Tests.integration;
 
 public class MovieServiceTests
 {

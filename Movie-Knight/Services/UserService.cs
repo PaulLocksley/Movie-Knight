@@ -40,7 +40,7 @@ public class UserService
             throw new HttpRequestException($"Failed to fetch watch list for user {username}");
         }
         var content = await response.Content.ReadAsStringAsync();
-        Regex filmsRx = new Regex(@"film-poster-(\d+)");
+        Regex filmsRx = new Regex(@"data-film-id=""(\d+)");
         var filmsMatch = filmsRx.Matches(content);
         
         foreach (Match filmMatch in filmsMatch)

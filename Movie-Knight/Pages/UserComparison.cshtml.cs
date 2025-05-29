@@ -87,7 +87,7 @@ public class UserComparison : PageModel
                         null));
                 Console.WriteLine($"UserList length {userList.Count} sharedCount = {sharedList.Count}");
                 if(sharedList.Count == 0)
-                {
+                {   
                     return Partial("_NoSharedMovies");
                 }
             }
