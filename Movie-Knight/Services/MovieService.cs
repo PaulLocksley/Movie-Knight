@@ -45,7 +45,7 @@ public class MovieService
         string description;
 
         //var filmData = { id: 251943, name: "Spider-Man: Into the Spider-Verse", gwiId: 301363, releaseYear: "2018", posterURL: "/film/spider-man-into-the-spider-verse/image-150/", path: "/film/spider-man-into-the-spider-verse/", runTime: 117 };
-        Regex nameDataRx = new Regex(@"\/film\/([^\/]+)\/rating-histogram");
+        Regex nameDataRx = new Regex(@"letterboxd.com\/film\/([^\/]+)\/");
         name = nameDataRx.Match(content).Groups[1].Value;
         //id
         //duration
@@ -89,28 +89,8 @@ public class MovieService
         }
         catch (Exception)
         {
-            try
-            {
-                Debug.WriteLine("Failed to find movie rating count attempting backup");
-                Regex backupRatingsCountsRx = new Regex("""title="(\d+)""");
-                var ratingHistogram = await httpClient.GetAsync($"csi/film/{url}/rating-histogram/");
-                if (!ratingHistogram.IsSuccessStatusCode)
-                {
-                    throw new Exception(ratingHistogram.ToString());
-                }
-                var ratingContent = await ratingHistogram.Content.ReadAsStringAsync();
-                ratingCount = backupRatingsCountsRx.Matches(ratingContent).Select(x => 
-                    Int32.Parse(x.Groups[1].ToString()))
-                    .Aggregate((x,y) => (x + y));
-                Debug.WriteLine($"Found rating number: {ratingCount}");
-            }
-            catch (Exception e)
-            {
-                Debug.WriteLine("Something really went wrong when attempting backup parsing");
-                Debug.WriteLine(e);
-                ratingCount = 0;
-            }
-
+            Debug.WriteLine($"unable to parse ratingsCount for movie id {movieUrl}");
+            ratingCount = 0;
         }
         //attrs - Studio
         Regex studiosRx = new Regex(@"\/studio\/([^\/]+)");
