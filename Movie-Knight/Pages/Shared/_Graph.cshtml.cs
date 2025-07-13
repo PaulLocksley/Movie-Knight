@@ -158,6 +158,11 @@ public class _Graph : PageModel
         stopWatch.Reset();
         stopWatch.Start();
         
+        if (!SharedMovies.Any())
+        {
+            return Page();
+        }
+        
         #region graphing section
 
         var barGraphTempData = SharedMovies.OrderByDescending(x => x.delta).Chunk(20).First();
