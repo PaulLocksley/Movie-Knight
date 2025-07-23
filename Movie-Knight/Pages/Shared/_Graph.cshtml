@@ -5,6 +5,10 @@
     Layout = null;
 }
 
+@if (!Request.IsHtmx())
+{
+    @await Html.PartialAsync("_SearchBar")
+}
 
 <div>
     <canvas id="scatterPlot"></canvas>

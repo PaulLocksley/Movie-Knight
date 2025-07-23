@@ -4,5 +4,9 @@
     ViewData["Title"] = "User Comparison";
 }
 
+@if (!Request.IsHtmx())
+{
+    @await Html.PartialAsync("_SearchBar")
+}
 
 @await Html.PartialAsync("_UserComparison")
