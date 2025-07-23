@@ -2,6 +2,7 @@
 @model Movie_Knight.Pages.UserComparison
 @{ ArgumentNullException.ThrowIfNull(Model); }
 
+<div id="userAnalysis" class="text-gray-200">
 <div class="tab container">
     <button class="tablinks active" 
             onclick="showTab('table')">Table</button>
@@ -127,5 +128,6 @@
             </table>
         }
     </div>
+</div>
 </div>
 
