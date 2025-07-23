@@ -11,8 +11,16 @@ public class _WatchList : PageModel
 {
     public List<Movie> Movies = [];
 
-    public async Task<IActionResult> OnGet(string userNames)
+    public async Task<IActionResult> OnGet(string? userNames)
     {
+        Console.WriteLine($"[_WatchList] OnGet called with userNames: '{userNames}'");
+        
+        if (string.IsNullOrWhiteSpace(userNames))
+        {
+            Console.WriteLine($"[_WatchList] ERROR: userNames is null or empty");
+            return BadRequest("Please provide user name/s");
+        }
+        
         var userService = new UserService(GetHttpClient.GetNamedHttpClient());
         var users = userNames.Split(",")
             .Select(x => x.Trim())
