@@ -46,8 +46,12 @@ body {
   border: none;
   outline: none;
   cursor: pointer;
-  padding: 14px 16px;
+  padding: 14px 0;
   transition: 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
 }
 
 .tab button:hover {
@@ -58,11 +62,14 @@ body {
   background-color: #67E8F9;
 }
 
-.tabcontent {
-  display: none;
+#tab-content {
 /*  padding: 6px 12px;
   border: 1px solid #ccc;
   border-top: none;*/
+  animation: fadeEffect 1s; /* Fading effect takes 1 second */
+}
+
+.tab-pane {
   animation: fadeEffect 1s; /* Fading effect takes 1 second */
 }
 @keyframes fadeEffect {

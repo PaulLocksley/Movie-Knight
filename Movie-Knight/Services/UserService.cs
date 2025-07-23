@@ -16,9 +16,15 @@ public class UserService
     public async Task<IDictionary<int, int>> FetchUser(string username)
     {
         var p = UserCache.TryGetUser(username);
-        if (p is not null) return p;
+        if (p is not null) 
+        {
+            Console.WriteLine($"[UserService] Cached user '{username}': {p.Count} movies");
+            return p;
+        }
         
         p = await _fetchUser(username);
+        Console.WriteLine($"[UserService] Fetched user '{username}': {p.Count} movies");
+        
         UserCache.InsertUser(username,p);
         return p;
     }
@@ -86,8 +92,10 @@ public class UserService
         }
 
         var response = await _httpClient.GetAsync(userUrl);
+        
         if (!response.IsSuccessStatusCode)
         {
+            Console.WriteLine($"[UserService] ERROR: Failed to fetch user '{username}' - Status: {response.StatusCode}");
             throw new FileNotFoundException("Letterboxd returned for user " + username+ " invalid code " + response.StatusCode + " : " + response.Content);
         }
         var content = await response.Content.ReadAsStringAsync();
@@ -95,14 +103,17 @@ public class UserService
         
         Regex filmsRx = new Regex(@"film:(\d+).*rated-(\d+)");
         var filmsMatch = filmsRx.Matches(content);
+        
         foreach (Match film in filmsMatch)
         {
             movieList[Int32.Parse(film.Groups[1].Value)] =  Int32.Parse(film.Groups[2].Value);
         }
+        
         if(pageNumber==0)
         {
             Regex pageMatch = new Regex(@"films\/page\/(\d+)\/.>\d+<\/a><\/li> <\/ul> <\/div> <\/div>");
             var foundPage = int.TryParse(pageMatch.Match(content).Groups[1].Value,out var pageCount);
+            
             if (foundPage)
             {
                 var po = new ParallelOptions { MaxDegreeOfParallelism = 15 };
@@ -124,6 +135,7 @@ public class UserService
                 #pragma warning restore CS1998
             }
         }
+        
         return movieList;
     }
 }

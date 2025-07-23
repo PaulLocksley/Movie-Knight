@@ -1,0 +1,30 @@
+@using Movie_Knight.Models
+@using Movie_Knight.Pages.Shared
+@model List<Movie>
+
+@if (Model.Count == 0)
+{
+    <h2>No movies found 😞</h2>
+}
+else
+{
+    <table class="text-left border-collapse w-full">
+        <tr class="text-xl">
+            <th scope="col">Title</th>
+            <th scope="col">Genre</th>
+            <th scope="col">Duration (mins)</th>
+        </tr>
+        @foreach (var movie in Model.OrderBy(x => UserComparisonBase.GetMovieGenres(x)))
+        {
+            <tr class="border-y border-gray-800">
+                <th scope="row">
+                    <a class="text-lg text-blue-500 hover:text-blue-400" href="https://letterboxd.com/film/film:@movie.id/">
+                        <h4>@UserComparisonBase.FormatMovieName(movie.name)</h4>
+                    </a>
+                </th>
+                <td>@UserComparisonBase.GetMovieGenres(movie)</td>
+                <td>@movie.duration</td>
+            </tr>
+        }
+    </table>
+}

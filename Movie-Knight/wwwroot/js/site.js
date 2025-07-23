@@ -1,4 +1,4 @@
-﻿// Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
+// Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
 // for details on configuring this project to bundle and minify static web assets.
 
 // Write your JavaScript code.
@@ -28,36 +28,95 @@ function filterTable(type, role, name){
 
 }
 
+// Shared variables and functions for movie row expansion
+var fetchedMovies = []
 
-function openTab(evt, viewName) {
-    // Declare all variables
-    var i, tabcontent, tablinks;
-    if (!graphsLoaded && viewName === "graphView"){
-        htmx.ajax('GET', '/_Graph?'+ new URLSearchParams(window.location.search),
-            {target:'#graphView', swap:'innerHTML'})
-        graphsLoaded = true
-    }
-    if (!watchListLoaded && viewName === "watchListView"){
-        htmx.ajax('GET','/_WatchList?'+ new URLSearchParams(window.location.search),
-            {target:'#watchListView',swap:'innerHTML'})
-        watchListLoaded = true
-    }
-    // Get all elements with class="tabcontent" and hide them
-    tabcontent = document.getElementsByClassName("tabcontent");
-    for (i = 0; i < tabcontent.length; i++) {
-        tabcontent[i].style.display = "none";
-    }
+function showHidenRow(rowId) { 
+    let r = document.getElementById(rowId)
+    let img = document.getElementById("img-"+rowId)
+    console.log(fetchedMovies)
+    let id = rowId.split("-")[1]
 
-    // Get all elements with class="tablinks" and remove the class "active"
-    tablinks = document.getElementsByClassName("tablinks");
-    for (i = 0; i < tablinks.length; i++) {
-        tablinks[i].className = tablinks[i].className.replace(" active", "");
+    if(!fetchedMovies.includes(id)){
+        htmx.ajax('GET', '/_filters?movieId='+id, 
+                    {target:'#'+rowId, swap:'outerHTML'})
+                    /*.then(() => {
+                    document.getElementById(rowId).style.display = "contents"
+                    })*/
+        fetchedMovies.push(id)
+        return
     }
+    let current = r.style.display 
+    console.log(current)
+    if(current !== "none"){
+        r.style.display = "none"  
+        img.src = "img/expand_more.svg"  
+    }else{
+        r.style.display = "contents"   
+        img.src = "img/expand_less.svg"  
+    }
+} 
 
-    // Show the current tab, and add an "active" class to the button that opened the tab
-    document.getElementById(viewName).style.display = "block";
-    evt.currentTarget.className += " active";
-    setTimeout(() => {
-        document.getElementById(viewName).style.display = "block";
-    }, 50);
+// Tab management functions
+var loadedTabs = new Set();
+
+function showTab(tabName) {
+    // Hide all tab panes
+    document.querySelectorAll('.tab-pane').forEach(pane => {
+        pane.style.display = 'none';
+    });
+    
+    // Remove active class from all tabs
+    document.querySelectorAll('.tablinks').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Show the selected tab pane
+    document.getElementById(tabName + '-tab').style.display = 'block';
+    
+    // Add active class to the clicked tab
+    event.target.classList.add('active');
 }
+
+// Clear loaded tabs when new user comparison data is loaded
+function clearLoadedTabs() {
+    loadedTabs.clear();
+}
+
+// Listen for HTMX events to clear loaded tabs when new user comparison data is loaded
+document.addEventListener('htmx:afterSwap', function(event) {
+    // Clear loaded tabs when the user analysis content is updated
+    if (event.target.id === 'userAnalysis') {
+        clearLoadedTabs();
+    }
+});
+
+function loadHtmxTab(tabName, url, buttonElement) {
+    // Hide all tab panes
+    document.querySelectorAll('.tab-pane').forEach(pane => {
+        pane.style.display = 'none';
+    });
+    
+    // Remove active class from all tabs
+    document.querySelectorAll('.tablinks').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Add active class to the clicked tab
+    buttonElement.classList.add('active');
+    
+    // Show the selected tab pane
+    const tabPane = document.getElementById(tabName + '-tab');
+    tabPane.style.display = 'block';
+    
+    // Load content via HTMX if not already loaded
+    if (!loadedTabs.has(tabName)) {
+        htmx.ajax('GET', url, {
+            target: '#' + tabName + '-tab',
+            swap: 'innerHTML'
+        });
+        loadedTabs.add(tabName);
+    }
+}
+
+

@@ -26,8 +26,10 @@ public class _Graph : PageModel
     public SortType SortOrder = SortType.DiscordDesc;
     public Dictionary<string, double> UserDeltas = new();
     
-    public async Task<IActionResult> OnGet(string userNames, string? filterString)
+    public async Task<IActionResult> OnGet(string? userNames, string? filterString)
     {
+        Console.WriteLine($"[_Graph] OnGet called with userNames: '{userNames}', filterString: '{filterString}'");
+        
         var stopWatch = new Stopwatch();
         stopWatch.Start();
         Filter[]? filters = null;
@@ -45,6 +47,12 @@ public class _Graph : PageModel
 
         try
         {
+            if (string.IsNullOrWhiteSpace(userNames))
+            {
+                Console.WriteLine($"[_Graph] ERROR: userNames is null or empty");
+                return BadRequest("Please provide user name/s");
+            }
+            
             var users = userNames.Split(",")
                 .Select(x => x.Trim())
                 .ToArray();

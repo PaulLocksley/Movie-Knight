@@ -4,31 +4,4 @@
 @{
     Layout = null;
 }
-@if (Model.Movies.Count == 0)
-{
-    <h2>Watchlist contains no shared movies 😞</h2>
-}
-else
-{
-
-    <table class="text-left border-collapse w-full">
-        <tr class="text-xl">
-            <th scope="col">Title</th>
-            <th scope="col">Genre</th>
-            <th scope="col">Duration (mins)</th>
-        </tr>
-        @foreach (var movie in Model.Movies.OrderBy(x => x.attributes.Where(a => a.role == "genre").Aggregate("", (_, y) => "" + y.name)))
-        {
-            <tr class="border-y border-gray-800">
-                <th scope="row">
-                    <a class="text-lg text-blue-500 hover:text-blue-400" href="https://letterboxd.com/film/film:@movie.id/">
-                        <h4>@movie.name.Split("-").Select(x =>
-                                x[..1].ToUpper() + x[1..]).Aggregate("", (x, y) => (x + " " + y))</h4></a></th>
-
-                <td>@movie.attributes.Where(x => x.role == "genre").Aggregate("", (_, y) => "" + y.name)
-                </td>
-                <td>@movie.duration</td>
-            </tr>
-        }
-    </table>
-}
+@await Html.PartialAsync("_MovieTable", Model.Movies)
