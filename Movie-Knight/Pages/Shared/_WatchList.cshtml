@@ -4,4 +4,10 @@
 @{
     Layout = null;
 }
+
+@if (!Request.IsHtmx())
+{
+    @await Html.PartialAsync("_SearchBar")
+}
+
 @await Html.PartialAsync("_MovieTable", Model.Movies)

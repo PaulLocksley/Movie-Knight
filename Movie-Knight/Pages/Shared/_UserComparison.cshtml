@@ -3,16 +3,7 @@
 @{ ArgumentNullException.ThrowIfNull(Model); }
 
 <div id="userAnalysis" class="text-gray-200">
-<div class="tab container">
-    <button class="tablinks active" 
-            onclick="showTab('table')">Table</button>
-    <button class="tablinks" 
-            onclick="loadHtmxTab('graphs', '/_Graph@(ViewContext.HttpContext.Request.QueryString)', this)">Graphs</button>
-    <button class="tablinks" 
-            onclick="loadHtmxTab('watchlist', '/_WatchList@(ViewContext.HttpContext.Request.QueryString)', this)">Watch List</button>
-    <button class="tablinks" 
-            onclick="showTab('recommendations')">Recommendations</button>
-</div>
+@await Html.PartialAsync("_TabNavigation", "table")
 
 <div id="tab-content">
     <!-- Table Tab Content -->
