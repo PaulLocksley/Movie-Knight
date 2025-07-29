@@ -73,13 +73,16 @@
     </div>
 
     <!-- Graphs Tab Content -->
-    <div id="graphs-tab" class="tab-pane" style="display: none;">
-        <!-- Content will be loaded via HTMX -->
+    <div id="graphs-tab" class="tab-pane"
+            style="display: none;"
+            hx-trigger="load" hx-get="/_Graph@(ViewContext.HttpContext.Request.QueryString)" >
+        <p>loading</p>
     </div>
 
     <!-- Watch List Tab Content -->
-    <div id="watchlist-tab" class="tab-pane" style="display: none;">
-        <!-- Content will be loaded via HTMX -->
+    <div id="watchlist-tab" class="tab-pane"
+    style="display: none;"
+    hx-trigger="load" hx-get="/_WatchList@(ViewContext.HttpContext.Request.QueryString)" >
     </div>
 
     <!-- Recommendations Tab Content -->
