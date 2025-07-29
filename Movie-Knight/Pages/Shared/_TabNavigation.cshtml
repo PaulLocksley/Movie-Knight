@@ -1,12 +1,10 @@
 @model string
 
 <div class="tab container">
-    <button class="tablinks @(Model == "table" ? "active" : "")" 
-            onclick="showTab('table')">Table</button>
-    <button class="tablinks @(Model == "graphs" ? "active" : "")" 
-            onclick="loadHtmxTab('graphs', '/_Graph@(ViewContext.HttpContext.Request.QueryString)', this)">Graphs</button>
-    <button class="tablinks @(Model == "watchlist" ? "active" : "")" 
-            onclick="loadHtmxTab('watchlist', '/_WatchList@(ViewContext.HttpContext.Request.QueryString)', this)">Watch List</button>
-    <button class="tablinks @(Model == "recommendations" ? "active" : "")" 
-            onclick="showTab('recommendations')">Recommendations</button>
+        <button class="tablinks @(Model == "table" ? "active" : "")" onclick="showTab('table')">Table</button>
+        <button class="tablinks @(Model == "graphs" ? "active" : "")" onclick="showTab('graphs')">Graphs</button>
+        <button class="tablinks @(Model == "watchlist" ? "active" : "")" onclick="showTab('watchlist')">Watch
+                List</button>
+        <button class="tablinks @(Model == "recommendations" ? "active" : "")"
+                onclick="showTab('recommendations')">Recommendations</button>
 </div>

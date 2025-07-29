@@ -91,32 +91,5 @@ document.addEventListener('htmx:afterSwap', function(event) {
     }
 });
 
-function loadHtmxTab(tabName, url, buttonElement) {
-    // Hide all tab panes
-    document.querySelectorAll('.tab-pane').forEach(pane => {
-        pane.style.display = 'none';
-    });
-    
-    // Remove active class from all tabs
-    document.querySelectorAll('.tablinks').forEach(tab => {
-        tab.classList.remove('active');
-    });
-    
-    // Add active class to the clicked tab
-    buttonElement.classList.add('active');
-    
-    // Show the selected tab pane
-    const tabPane = document.getElementById(tabName + '-tab');
-    tabPane.style.display = 'block';
-    
-    // Load content via HTMX if not already loaded
-    if (!loadedTabs.has(tabName)) {
-        htmx.ajax('GET', url, {
-            target: '#' + tabName + '-tab',
-            swap: 'innerHTML'
-        });
-        loadedTabs.add(tabName);
-    }
-}
 
 
