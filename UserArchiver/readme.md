@@ -1,0 +1,1 @@
+Generate sqlite db of top 3000~ users this week.

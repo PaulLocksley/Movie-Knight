@@ -22,6 +22,7 @@ public abstract class UserComparisonBase : PageModel
     public string[][] DisplayFilterRolesWeCareAbout { get; set; } = { new [] {"cast"}, new [] {"studio","writer","director"} };
     public SortType SortOrder { get; set; } = SortType.DiscordDesc;
     public Dictionary<string, double> UserDeltas { get; set; } = new();
+    public double GroupPercentile { get; set; }
 
     protected UserComparisonBase()
     {
@@ -60,6 +61,7 @@ public abstract class UserComparisonBase : PageModel
         MovieRecs = result.MovieRecs;
         SortOrder = result.SortOrder;
         UserDeltas = result.UserDeltas;
+        GroupPercentile = result.GroupPercentile;
 
         return OnProcessingComplete();
     }
