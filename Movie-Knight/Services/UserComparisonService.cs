@@ -10,10 +10,12 @@ namespace Movie_Knight.Services;
 public class UserComparisonService
 {
     private readonly UserService _userService;
+    private readonly PercentileLookupService _percentileLookup;
 
     public UserComparisonService()
     {
         _userService = new UserService(GetHttpClient.GetNamedHttpClient());
+        _percentileLookup = new PercentileLookupService();
     }
 
     public async Task<UserComparisonResult> ProcessUserComparison(string? userNames, string? filterString, string? sortString)
@@ -158,6 +160,13 @@ public class UserComparisonService
                     Math.Round(Math.Abs(userTotal - meanTotal) / result.SharedMovies.Count, 3) : 0;
             }
 
+            // Calculate group percentile
+            if (result.UserDeltas.Count > 0)
+            {
+                var averageGroupDelta = result.UserDeltas.Values.Average();
+                result.GroupPercentile = Math.Round(_percentileLookup.GetPercentile(averageGroupDelta, result.ComparisonUsers.Count), 1);
+            }
+
             // Generate recommendations
             result.MovieRecs = GenerateRecommendations(result.ComparisonUsers, result.SharedMovies);
 
@@ -223,6 +232,7 @@ public class UserComparisonResult
     public List<Movie> MovieRecs { get; set; } = new();
     public SortType SortOrder { get; set; } = SortType.DiscordDesc;
     public Dictionary<string, double> UserDeltas { get; set; } = new();
+    public double GroupPercentile { get; set; }
     
     // Status flags
     public bool Success { get; set; }

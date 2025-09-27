@@ -10,7 +10,11 @@ html {
   }
 }
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+.btn:focus,
+.btn:active:focus,
+.btn-link.nav-link:focus,
+.form-control:focus,
+.form-check-input:focus {
   box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
@@ -27,6 +31,7 @@ body {
   position: absolute;
   right: 50%;
 }
+
 /*tab view stuff from  https://www.w3schools.com/howto/howto_js_tabs.asp */
 .tab {
   overflow: hidden;
@@ -34,12 +39,14 @@ body {
   border: 1px solid #ccc;
   background-color: #06B6D4;
 }
+
 .tablinks {
   width: 25%;
   margin: 0;
   color: #030712;
   font-weight: bolder;
 }
+
 .tab button {
   background-color: inherit;
   float: left;
@@ -63,18 +70,26 @@ body {
 }
 
 #tab-content {
-/*  padding: 6px 12px;
+  /*  padding: 6px 12px;
   border: 1px solid #ccc;
   border-top: none;*/
-  animation: fadeEffect 1s; /* Fading effect takes 1 second */
+  animation: fadeEffect 1s;
+  /* Fading effect takes 1 second */
 }
 
 .tab-pane {
-  animation: fadeEffect 1s; /* Fading effect takes 1 second */
+  animation: fadeEffect 1s;
+  /* Fading effect takes 1 second */
 }
+
 @keyframes fadeEffect {
-  from {opacity: 0;}
-  to {opacity: 1;}
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 #siteLogo {
@@ -96,44 +111,50 @@ body {
 
 }
 
-.filters{
+.filters {
   display: flex;
   flex-flow: column;
   max-height: 300px;
   width: 300px;
   overflow-y: scroll;
-  align-content:  start;
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  align-content: start;
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
 
 }
+
 .filters::-webkit-scrollbar {
   display: none;
 }
 
 .filter {
   flex-flow: row;
-  display:flex;
+  display: flex;
   flex: auto;
   margin-bottom: 5px;
   margin-left: 10px;
 }
-.filter > button {
-  width:  50px;
+
+.filter>button {
+  width: 50px;
   height: 100%;
   margin: 0;
   padding: 0;
   border: 0;
 }
 
-.add-filter{
+.add-filter {
   border-radius: 0 5px 5px 0;
   background-color: #2e7d32;
 }
-.remove-filter{
+
+.remove-filter {
   border-radius: 5px 0 0 5px;
   background-color: #b71c1c;
 }
+
 .filter-label {
   background-color: #1f2d38;
   padding-left: 10px;
@@ -142,8 +163,9 @@ body {
   text-wrap: nowrap;
   margin: 0;
 }
-.hidden-row{
-    display: none;
+
+.hidden-row {
+  display: none;
 }
 
 input:invalid {
@@ -155,17 +177,19 @@ input:invalid {
   min-width: 0;
 }
 
-#graphView > div {
+#graphView>div {
   max-height: 50vh;
   min-width: 50vw;
-  
+
 }
+
 #help {
   width: 30px;
   height: 30px;
   border-radius: 15px;
 }
-#help > p {
+
+#help>p {
   font-weight: 500;
   padding: 0;
   margin: 0;
@@ -177,23 +201,19 @@ input:invalid {
   display: flex;
   flex-flow: row;
 }
+
 .userInputForm {
   width: 100%;
 }
 
 
-::backdrop {
-  background-image: linear-gradient(
-          45deg,
-          magenta,
-          rebeccapurple,
-          dodgerblue,
-          green
-  );
-  opacity: 0.75;
+dialog::backdrop {
+  background-image: linear-gradient(45deg,
+      gray);
+  opacity: 0.15;
 }
 
-.instruction-modal{
+.instruction-modal {
   width: 80vw;
   height: 80vh;
   background-color: #11191f;
@@ -210,7 +230,7 @@ input:invalid {
   padding: 8px;
   font-size: 16px;
   border: none;
-  margin:0;
+  margin: 0;
 
 
 }
@@ -226,7 +246,7 @@ input:invalid {
   background-color: var(--primary);
   left: -158px;
   min-width: 160px;
-  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
   border-radius: 20px 0 20px 20px;
   z-index: 1;
 }
@@ -243,9 +263,12 @@ input:invalid {
   background-color: dodgerblue;
 }
 
-.dropdown:hover .dropdown-content {display: block;}
+.dropdown:hover .dropdown-content {
+  display: block;
+}
 
-.dropdown:hover .dropbtn {background-color: dodgerblue;
+.dropdown:hover .dropbtn {
+  background-color: dodgerblue;
   border-radius: 5px 5px 0 0;
 }
 
