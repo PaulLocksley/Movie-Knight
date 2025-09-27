@@ -10,13 +10,20 @@
     <div id="table-tab" class="tab-pane">
         @if (Model.SharedMovies is {} movies)
         {
-            <div>
-            <h3>nSyncatron</h3>
-                        <br/>
+            <div class="bg-slate-700 rounded-sm mb-2 mt-8 p-2">
+            @if( Model.ComparisonUsers is {} infoUsers){
+                @foreach(var user in infoUsers){
+                    <p> <b> @user.username </b> difference to group average: @Model.UserDeltas[user.username] </p>
+                }
+            }
+            
                         <span class="text-sm @(Model.GroupPercentile >= 75 ? "text-green-400" : 
                                               Model.GroupPercentile >= 50 ? "text-yellow-400" : 
                                               Model.GroupPercentile >= 25 ? "text-orange-400" : "text-red-400")">
-                            (@Model.GroupPercentile.ToString("F1")th %ile)
+                            This group is in the @Model.GroupPercentile.ToString("F1")th percentile for rating agreement@(Model.GroupPercentile >= 90 ? "!!!" : Model.GroupPercentile >= 75 ? "!" : 
+                                              Model.GroupPercentile >= 50 ? "" : 
+                                              Model.GroupPercentile >= 25 ? " :(" : " :'(")
+                            </span>
             </div>
 
 
@@ -27,11 +34,10 @@
                     <th class="max-w-34">Name</th>
                     @foreach (var user in users)
                     {
-                        <th>@user.username <br/> Δx̄ @Model.UserDeltas[user.username]</th>
+                        <th>@user.username</th>
                     }
                     <th>Group Average Rating</th>
-                    <th>Total Delta to Average <br/> x̄ @((Model.SharedMovies.Sum(x => x.delta)
-                                                              /Model.SharedMovies.Count).ToString())</th>
+                    <th>Absolute difference to average Rating<br/> x̄</th>
                     @if (Model.SortOrder == SortType.Popularity || Model.SortOrder == SortType.PopularityDesc)
                     {
                         <th># of ratings</th>
