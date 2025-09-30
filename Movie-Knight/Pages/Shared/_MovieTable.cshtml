@@ -8,22 +8,22 @@
 }
 else
 {
-    <table class="text-left border-collapse w-full">
-        <tr class="text-xl">
-            <th scope="col">Title</th>
-            <th scope="col">Genre</th>
-            <th scope="col">Duration (mins)</th>
+    <table class="w-full table-auto border-collapse bg-slate-800 rounded-lg overflow-hidden shadow-lg">
+        <tr class="bg-slate-700 font-bold text-xl">
+            <th scope="col" class="text-left py-4 px-6 w-1/2 border-b border-slate-600">Title</th>
+            <th scope="col" class="text-left py-4 px-6 w-1/4 border-b border-slate-600">Genre</th>
+            <th scope="col" class="text-center py-4 px-6 w-1/4 border-b border-slate-600">Duration (mins)</th>
         </tr>
         @foreach (var movie in Model.OrderBy(x => UserComparisonBase.GetMovieGenres(x)))
         {
-            <tr class="border-y border-gray-800">
-                <th scope="row">
-                    <a class="text-lg text-blue-500 hover:text-blue-400" href="https://letterboxd.com/film/film:@movie.id/">
-                        <h4>@UserComparisonBase.FormatMovieName(movie.name)</h4>
+            <tr class="border-b border-slate-600 hover:bg-slate-700 transition-colors duration-200">
+                <th scope="row" class="text-left py-3 px-6 border-r border-slate-600">
+                    <a class="text-blue-400 hover:text-blue-300 font-medium" href="https://letterboxd.com/film/film:@movie.id/">
+                        @UserComparisonBase.FormatMovieName(movie.name)
                     </a>
                 </th>
-                <td>@UserComparisonBase.GetMovieGenres(movie)</td>
-                <td>@movie.duration</td>
+                <td class="py-3 px-6 border-r border-slate-600">@UserComparisonBase.GetMovieGenres(movie)</td>
+                <td class="py-3 px-6 text-center">@movie.duration</td>
             </tr>
         }
     </table>

@@ -27,22 +27,22 @@
             </div>
 
 
-            <table class="min-w-5xl">
+            <table class="w-full table-auto border-collapse bg-slate-800 rounded-lg overflow-hidden shadow-lg">
             @if (Model.ComparisonUsers is {} users)
             {
-                <tr class="p-4 font-bold text-xl">
-                    <th class="max-w-34">Name</th>
+                <tr class="bg-slate-700 font-bold text-xl">
+                    <th class="text-left py-4 px-6 w-1/4 border-b border-slate-600">Name</th>
                     @foreach (var user in users)
                     {
-                        <th>@user.username</th>
+                        <th class="text-center py-4 px-3 border-b border-slate-600">@user.username</th>
                     }
-                    <th>Group Average Rating</th>
-                    <th>Absolute difference to average Rating<br/> x̄</th>
+                    <th class="text-center py-4 px-3 border-b border-slate-600">Group Average</th>
+                    <th class="text-center py-4 px-3 border-b border-slate-600">Difference</th>
                     @if (Model.SortOrder == SortType.Popularity || Model.SortOrder == SortType.PopularityDesc)
                     {
-                        <th># of ratings</th>
+                        <th class="text-center py-4 px-3 border-b border-slate-600"># of ratings</th>
                     }
-                    <th><div class="dropdown">
+                    <th class="text-center py-4 px-3 border-b border-slate-600 w-16"><div class="dropdown">
                                     <button class="dropbtn bg-cyan-500 hover:bg-cyan-300 rounded-sm"><img src="img\sort.svg" alt="Sort" width="36px"/></button>
                                     <div class="dropdown-content bg-cyan-500 hover:bg-cyan-300 text-gray-950">
                                         @foreach (var viewSortType in Enum.GetValues(typeof(SortType)).Cast<SortType>())
@@ -58,9 +58,9 @@
                 </tr>
                 @foreach (var movie in movies)
                 {
-                    <tr onclick="showHidenRow('info-@movie.movieData.id')" class="text-lg border-y border-gray-800">
-                        <td class="max-w-34">
-                            <a href="https://letterboxd.com/film/film:@movie.movieData.id/" class="text-blue-500 hover:text-blue-400">
+                    <tr onclick="showHidenRow('info-@movie.movieData.id')" class="text-lg border-b border-slate-600 hover:bg-slate-700 transition-colors duration-200 cursor-pointer">
+                        <td class="py-3 px-6 border-r border-slate-600">
+                            <a href="https://letterboxd.com/film/film:@movie.movieData.id/" class="text-blue-400 hover:text-blue-300 font-medium">
                                 @movie.movieData.name.Split("-").Select(x =>
                                     x[..1].ToUpper() + x[1..]).Aggregate("", (x, y) => (x + " " + y))
                             </a>
@@ -68,16 +68,16 @@
 
                         @foreach (var user in users)
                         {
-                            <td>@user.userList[movie.Item1.id].ToString()</td>
+                            <td class="py-3 px-3 text-center border-r border-slate-600 font-semibold">@user.userList[movie.Item1.id].ToString()</td>
                         }
-                        <td>@Math.Round(movie.Item2,2)</td>
-                        <td>@movie.Item3</td>
+                        <td class="py-3 px-3 text-center border-r border-slate-600 font-medium">@Math.Round(movie.Item2,2)</td>
+                        <td class="py-3 px-3 text-center border-r border-slate-600">@movie.Item3</td>
                         @if (Model.SortOrder == SortType.Popularity || Model.SortOrder == SortType.PopularityDesc)
-                                        {
-                                            <td>@movie.movieData.RatingCount.ToString()</td>
-                                        }
-                        <td >
-                            <img src="img/expand_more.svg" id="img-info-@movie.movieData.id" alt="Expand"/>
+                        {
+                            <td class="py-3 px-3 text-center border-r border-slate-600">@movie.movieData.RatingCount.ToString()</td>
+                        }
+                        <td class="py-3 px-3 text-center">
+                            <img src="img/expand_more.svg" id="img-info-@movie.movieData.id" alt="Expand" class="mx-auto"/>
                         </td>
                     </tr>
                     <tr id="info-@movie.movieData.id" class="hidden-row">
@@ -115,25 +115,24 @@
         }
         else
         {
-            <table class="text-left border-collapse w-full">
-                <tr class="text-xl">
-                    <th scope="col">Title</th>
-                    <th scope="col">Genre</th>
-                    <th scope="col">Duration (mins)</th>
+            <table class="w-full table-auto border-collapse bg-slate-800 rounded-lg overflow-hidden shadow-lg">
+                <tr class="bg-slate-700 font-bold text-xl">
+                    <th scope="col" class="text-left py-4 px-6 w-1/2 border-b border-slate-600">Title</th>
+                    <th scope="col" class="text-left py-4 px-6 w-1/4 border-b border-slate-600">Genre</th>
+                    <th scope="col" class="text-center py-4 px-6 w-1/4 border-b border-slate-600">Duration (mins)</th>
                 </tr>
                 @foreach (var movie in Model.MovieRecs.OrderBy(x => x.attributes.Where(a => a.role == "genre").Aggregate("", (_, y) => "" + y.name)))
                 {
-                    <tr class="border-y border-gray-800">
-                    <th scope="row">
-                        <a class="text-lg text-blue-500 hover:text-blue-400" href="https://letterboxd.com/film/film:@movie.id/">
-                            <h4>@movie.name.Split("-").Select(x =>
-                                    x[..1].ToUpper() + x[1..]).Aggregate("", (x, y) => (x + " " + y))</h4></a></th>
-
-                <td>@movie.attributes.Where(x => x.role == "genre").Aggregate("", (_, y) => "" + y.name)
-                </td>
-                <td>@movie.duration</td>
-                </tr>
-                            
+                    <tr class="border-b border-slate-600 hover:bg-slate-700 transition-colors duration-200">
+                        <th scope="row" class="text-left py-3 px-6 border-r border-slate-600">
+                            <a class="text-blue-400 hover:text-blue-300 font-medium" href="https://letterboxd.com/film/film:@movie.id/">
+                                @movie.name.Split("-").Select(x =>
+                                        x[..1].ToUpper() + x[1..]).Aggregate("", (x, y) => (x + " " + y))
+                            </a>
+                        </th>
+                        <td class="py-3 px-6 border-r border-slate-600">@movie.attributes.Where(x => x.role == "genre").Aggregate("", (_, y) => "" + y.name)</td>
+                        <td class="py-3 px-6 text-center">@movie.duration</td>
+                    </tr>
                 }
             </table>
         }
