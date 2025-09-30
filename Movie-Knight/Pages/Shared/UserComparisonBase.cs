@@ -24,9 +24,9 @@ public abstract class UserComparisonBase : PageModel
     public Dictionary<string, double> UserDeltas { get; set; } = new();
     public double GroupPercentile { get; set; }
 
-    protected UserComparisonBase()
+    protected UserComparisonBase(UserComparisonService userComparisonService)
     {
-        _userComparisonService = new UserComparisonService();
+        _userComparisonService = userComparisonService;
     }
 
     protected async Task<IActionResult> ProcessUserComparisonRequest(string? userNames, string? filterString, string? sortString)

@@ -17,6 +17,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddRazorPages();
+builder.Services.AddSingleton<Movie_Knight.Services.PercentileLookupService>();
+builder.Services.AddScoped<Movie_Knight.Services.UserComparisonService>();
 builder.Services.AddMetricServer(options =>
 {
     options.Port = 4010;

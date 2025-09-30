@@ -12,10 +12,10 @@ public class UserComparisonService
     private readonly UserService _userService;
     private readonly PercentileLookupService _percentileLookup;
 
-    public UserComparisonService()
+    public UserComparisonService(PercentileLookupService percentileLookup)
     {
         _userService = new UserService(GetHttpClient.GetNamedHttpClient());
-        _percentileLookup = new PercentileLookupService();
+        _percentileLookup = percentileLookup;
     }
 
     public async Task<UserComparisonResult> ProcessUserComparison(string? userNames, string? filterString, string? sortString)

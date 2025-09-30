@@ -4,11 +4,15 @@ using Htmx;
 using Microsoft.AspNetCore.Mvc;
 using Movie_Knight.Models;
 using Movie_Knight.Pages.Shared;
+using Movie_Knight.Services;
 
 namespace Movie_Knight.Pages;
 
 public class UserComparison : UserComparisonBase
 {
+    public UserComparison(UserComparisonService userComparisonService) : base(userComparisonService)
+    {
+    }
     public async Task<IActionResult> OnGet(string? userNames, string? filterString, string? sortString)
     {
         var stopWatch = new Stopwatch();
