@@ -61,21 +61,17 @@ public class UserService
             if (foundPage)
             {
                 var po = new ParallelOptions { MaxDegreeOfParallelism = 15 };
-                #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-                Parallel.For(2, pageCount + 1, po, async i =>
-                {
-                    var movieListTask = FetchWatchList(username, i);
-                    while (!movieListTask.IsCompleted)
+                await Parallel.ForEachAsync(
+                    Enumerable.Range(2, pageCount - 1),
+                    po,
+                    async (i, ct) =>
                     {
-                        Thread.Sleep(100);
-                    }
-
-                    foreach (var movie in movieListTask.Result)
-                    {
-                        movieList.Add(movie);
-                    }
-                });
-                #pragma warning restore CS1998
+                        var movies = await FetchWatchList(username, i);
+                        foreach (var movie in movies)
+                        {
+                            movieList.Add(movie);
+                        }
+                    });
             }
         }
         UserCache.InsertWatchListUser(username,movieList.ToList());
@@ -117,22 +113,17 @@ public class UserService
             if (foundPage)
             {
                 var po = new ParallelOptions { MaxDegreeOfParallelism = 15 };
-                #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-                Parallel.For(2, pageCount + 1, po, async i =>
-                {
-                    
-                    var movieListTask = _fetchUser(username, i);
-                    while (!movieListTask.IsCompleted)
+                await Parallel.ForEachAsync(
+                    Enumerable.Range(2, pageCount - 1),
+                    po,
+                    async (i, ct) =>
                     {
-                        Thread.Sleep(100);
-                    } //for some reason awaiting above doesn't work but this does?????
-
-                    foreach (var m in movieListTask.Result)
-                    {
-                        movieList[m.Key] = m.Value;
-                    }
-                });
-                #pragma warning restore CS1998
+                        var movies = await _fetchUser(username, i);
+                        foreach (var m in movies)
+                        {
+                            movieList[m.Key] = m.Value;
+                        }
+                    });
             }
         }
         
