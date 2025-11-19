@@ -43,8 +43,11 @@
     <UpToDateCheckBuilt Include="wwwroot/css/site.css" Set="Css" />
     <UpToDateCheckBuilt Include="tailwind.config.js" Set="Css" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Movie-Knight.ServiceDefaults\Movie-Knight.ServiceDefaults.csproj" />
+  </ItemGroup>
 
   <Target Name="Tailwind" BeforeTargets="Build">
-    <Exec Command="tailwindcss -i ./wwwroot/css/site.css -o ./wwwroot/css/styles.css --minify" ContinueOnError="WarnAndContinue"/>
+    <Exec Command="tailwindcss -i ./wwwroot/css/site.css -o ./wwwroot/css/styles.css --minify" ContinueOnError="WarnAndContinue" />
   </Target>
 </Project>
