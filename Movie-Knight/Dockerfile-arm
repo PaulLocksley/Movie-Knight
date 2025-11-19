@@ -1,11 +1,11 @@
 # Use ARM64 base image
-FROM --platform=linux/arm64 mcr.microsoft.com/dotnet/aspnet:9.0 AS base
+FROM --platform=linux/arm64 mcr.microsoft.com/dotnet/aspnet:10.0 AS base
 WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
 # Use SDK image without the amd64 suffix, rely on platform spec
-FROM --platform=linux/arm64 mcr.microsoft.com/dotnet/sdk:9.0-noble AS build-setup
+FROM --platform=linux/arm64 mcr.microsoft.com/dotnet/sdk:10.0-noble AS build-setup
 WORKDIR /src
 
 # Install nodejs and npm (arm64 compatible)
