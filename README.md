@@ -1,3 +1,9 @@
+### Project archived. 
+Letterboxd has put in some anti scraping tech and denied api access so I assume they don't like this :) 
+
+This was fun, I hope you enjoyed it.
+
+
 ![](https://files.locksley.dev/web-logo-nobackground.png)
 
 -----------------
